@@ -12,7 +12,7 @@ const LoginScreen = ({
     handleLogin
 }) => {
     return (
-        <div className="min-h-screen bg-purple-200 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
                 <h1 className="text-2xl font-bold text-center text-purple-900 mb-6">
                     Contest Watch Buddy
@@ -26,7 +26,7 @@ const LoginScreen = ({
                             type="text"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            className="w-full px-3 py-2 border rounded"
+                            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-600"
                             placeholder="Enter your name"
                         />
                     </div>
@@ -48,7 +48,7 @@ const LoginScreen = ({
                     <div className="flex space-x-3">
                         <button
                             onClick={handleLogin}
-                            className="flex-1 bg-purple-800 text-white py-2 px-4 rounded hover:bg-purple-900"
+                            className="w-full bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-purple-600"
                         >
                             {showAdminLogin ? 'Login as Admin' : 'Join Watch Party'}
                         </button>
