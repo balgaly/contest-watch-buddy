@@ -6,6 +6,8 @@ import UserManagement from './components/UserManagement';
 import ContestSelection from './components/ContestSelection';
 import Voting from './components/Voting';
 import Results from './components/Results';
+import { doc, setDoc, getDoc, collection, onSnapshot, getDocs, deleteDoc } from "firebase/firestore";
+import { app, db } from './firebase/firebaseConfig';
 
 const App = () => {
   // App state
@@ -24,6 +26,20 @@ const App = () => {
   // Global competition state
   const [users, setUsers] = useState([]);
   const [allScores, setAllScores] = useState({});
+  useEffect(() => {
+    // This listens for live updates from Firebase and updates allScores in real time
+    const unsubscribe = onSnapshot(collection(db, "scores"), (snapshot) => {
+      let updatedScores = {};
+      snapshot.forEach((doc) => {
+        updatedScores[doc.id] = doc.data();
+      });
+      console.log("Updated scores from Firebase:", updatedScores);
+      setAllScores(updatedScores);
+    });
+
+    return () => unsubscribe(); // Cleanup the listener when component unmounts
+  }, []);
+
 
   // Contest state
   const [contests] = useState(initialContests);
@@ -37,24 +53,58 @@ const App = () => {
   // New state for tracking if session was started by admin
   const [isAdminSession, setIsAdminSession] = useState(false);
 
-  // Load global data and current session on mount
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    const storedGlobalUsers = localStorage.getItem('globalUsers');
-    if (storedGlobalUsers) {
-      setUsers(JSON.parse(storedGlobalUsers));
+  // New state for average score
+  const [averageScore, setAverageScore] = useState(0);
+
+  const fetchAllScoresDebug = async () => {
+    if (!activeContestId) return;
+
+    console.log("🔍 Fetching all scores manually from Firebase...");
+
+    try {
+      const scoresRef = collection(db, "contests", activeContestId, "contestants");
+      const snapshot = await getDocs(scoresRef);
+
+      if (snapshot.empty) {
+        console.log("⚠️ No contestants found in Firebase for this contest!");
+        return;
+      }
+
+      let debugScores = {};
+
+      for (const contestantDoc of snapshot.docs) {
+        const contestantId = contestantDoc.id;
+        console.log(`📌 Found contestant: ${contestantId}`);
+
+        const scoresCollectionRef = collection(
+          db,
+          "contests",
+          activeContestId,
+          "contestants",
+          contestantId,
+          "scores"
+        );
+
+        const scoresSnapshot = await getDocs(scoresCollectionRef);
+        if (scoresSnapshot.empty) {
+          console.log(`⚠️ No scores found for contestant ${contestantId}`);
+          continue;
+        }
+
+        const contestantScores = {};
+        scoresSnapshot.forEach((scoreDoc) => {
+          contestantScores[scoreDoc.id] = scoreDoc.data();
+        });
+
+        debugScores[contestantId] = contestantScores;
+      }
+
+      console.log("🔎 Final Firebase Scores Structure:", debugScores);
+    } catch (error) {
+      console.error("🔥 Firestore Query Error:", error);
     }
-    const storedGlobalAllScores = localStorage.getItem('globalAllScores');
-    if (storedGlobalAllScores) {
-      setAllScores(JSON.parse(storedGlobalAllScores));
-    }
-    const storedSession = localStorage.getItem('currentSession');
-    if (storedSession && !currentUser) {
-      const session = JSON.parse(storedSession);
-      setCurrentUser(session.currentUser);
-      setActiveContestId(session.activeContestId);
-    }
-  }, []);
+  };
+
 
   // Persist global data
   useEffect(() => {
@@ -198,58 +248,133 @@ const App = () => {
     setPage('main');
   };
 
-  const updateScore = (contestantId, criterionId, value) => {
+  const updateScore = async (contestantId, criterionId, value) => {
     if (!currentUser) return;
-    setAllScores(prev => {
-      const userScores = prev[currentUser.id] || {};
-      const contestScores = userScores[activeContestId] || {};
-      const contestantScores = contestScores[contestantId.toString()] || {};
-      const updatedScores = {
-        ...contestantScores,
-        [criterionId]: parseInt(value) || 0
-      };
-      let overall = 0;
-      let hasAllScores = true;
-      CRITERIA.forEach(criterion => {
-        if (updatedScores[criterion.id]) {
-          overall += updatedScores[criterion.id] * criterion.weight;
-        } else {
-          hasAllScores = false;
-        }
-      });
-      if (hasAllScores) {
-        updatedScores.overall = overall;
-      }
-      return {
-        ...prev,
-        [currentUser.id]: {
-          ...userScores,
-          [activeContestId]: {
-            ...contestScores,
-            [contestantId.toString()]: updatedScores
-          }
-        }
-      };
-    });
+
+    console.log(`📝 Attempting to update score in Firebase: Contestant ${contestantId}, Criterion ${criterionId}, Value ${value}`);
+
+    const contestantRef = doc(
+      db,
+      "contests", activeContestId.toString(),
+      "contestants", contestantId.toString()
+    );
+
+    // ✅ Ensure the contestant document exists
+    await setDoc(contestantRef, { created: true }, { merge: true });
+
+    const voteRef = doc(
+      db,
+      "contests", activeContestId.toString(),
+      "contestants", contestantId.toString(),
+      "scores", currentUser.id.toString()
+    );
+
+    // ✅ Update Firestore with the new score, including voter's name
+    await setDoc(voteRef, { [criterionId]: parseInt(value) || 0, voterName: currentUser.name }, { merge: true });
+
+    console.log("✅ Score successfully updated in Firebase!");
   };
 
-  const getScore = (contestantId, criterionId) => {
+
+
+  const getScore = async (contestantId, criterionId) => {
     if (!currentUser) return 0;
-    return allScores[currentUser.id]?.[activeContestId]?.[contestantId.toString()]?.[criterionId] || 0;
+
+    const voteRef = doc(
+      db,
+      'contests', activeContestId.toString(),
+      'contestants', contestantId.toString(),
+      'scores', currentUser.id.toString()
+    );
+
+    const docSnap = await getDoc(voteRef);
+
+    if (docSnap.exists()) {
+      const score = parseFloat(docSnap.data()[criterionId]) || 0;
+      console.log(`Retrieved score for contestantId: ${contestantId}, criterionId: ${criterionId} is ${score}`);
+      return score;
+    } else {
+      console.log(`No score found for contestantId: ${contestantId}, criterionId: ${criterionId}`);
+      return 0;
+    }
   };
+
+  useEffect(() => {
+    if (!activeContestId) return;
+
+    console.log("📡 Setting up Firestore listener...");
+
+    const scoresRef = collection(db, "contests", activeContestId, "contestants");
+
+    const unsubscribe = onSnapshot(scoresRef, async (snapshot) => {
+      let updatedScores = {};
+
+      for (const contestantDoc of snapshot.docs) {
+        const contestantId = contestantDoc.id;
+        console.log(`👀 Fetching scores for contestant: ${contestantId}`);
+
+        const scoresCollectionRef = collection(
+          db,
+          "contests",
+          activeContestId,
+          "contestants",
+          contestantId,
+          "scores"
+        );
+
+        const scoresSnapshot = await getDocs(scoresCollectionRef);
+        if (scoresSnapshot.empty) {
+          console.log(`⚠️ No scores found for contestant ${contestantId}`);
+          continue;
+        }
+
+        const contestantScores = {};
+        scoresSnapshot.forEach((scoreDoc) => {
+          contestantScores[scoreDoc.id] = scoreDoc.data();
+        });
+
+        updatedScores[contestantId] = contestantScores;
+      }
+
+      console.log("✅ Updated allScores from Firebase:", updatedScores);
+      setAllScores(updatedScores);
+    });
+
+    return () => unsubscribe();
+  }, [activeContestId]);
+
+
+
 
   const getAverageScore = (contestantId, criterionId) => {
+    if (!allScores || Object.keys(allScores).length === 0) {
+      console.log(`⚠️ No scores found in allScores.`);
+      return 0;
+    }
+
     let total = 0;
     let count = 0;
-    Object.values(allScores).forEach(userScores => {
-      const score = userScores[activeContestId]?.[contestantId.toString()]?.[criterionId];
-      if (score) {
-        total += score;
-        count++;
+
+    console.log(`🔍 Checking scores for Contestant ${contestantId}, Criterion ${criterionId}`, allScores);
+
+    Object.entries(allScores).forEach(([contestantKey, userScores]) => {
+      if (contestantKey === contestantId && userScores) {
+        Object.values(userScores).forEach(userScore => {
+          if (userScore && userScore[criterionId] !== undefined) {
+            total += userScore[criterionId];
+            count++;
+          }
+        });
       }
     });
+
+    console.log(`ℹ️ Average score for ${contestantId} - ${criterionId}:`, count > 0 ? total / count : 0);
     return count > 0 ? total / count : 0;
   };
+
+
+
+
 
   const getContestantRank = (contestantId) => {
     const scoredContestants = activeContest.contestants.map(c => ({
@@ -263,6 +388,40 @@ const App = () => {
 
   const toggleContestantDetails = (contestantId) => {
     setSelectedContestant(selectedContestant === contestantId ? null : contestantId);
+  };
+
+  const deleteAllScores = async () => {
+    if (!activeContestId) return;
+
+    console.log("🗑️ Deleting all scores for the active contest...");
+
+    try {
+      const scoresRef = collection(db, "contests", activeContestId, "contestants");
+      const snapshot = await getDocs(scoresRef);
+
+      for (const contestantDoc of snapshot.docs) {
+        const contestantId = contestantDoc.id;
+        const scoresCollectionRef = collection(
+          db,
+          "contests",
+          activeContestId,
+          "contestants",
+          contestantId,
+          "scores"
+        );
+
+        const scoresSnapshot = await getDocs(scoresCollectionRef);
+        for (const scoreDoc of scoresSnapshot.docs) {
+          await deleteDoc(scoreDoc.ref);
+        }
+      }
+
+      console.log("✅ All scores deleted successfully!");
+      alert("All scores have been deleted successfully!");
+    } catch (error) {
+      console.error("🔥 Error deleting scores:", error);
+      alert("An error occurred while deleting scores. Please check the console for details.");
+    }
   };
 
   if (page === 'login') {
@@ -335,15 +494,24 @@ const App = () => {
                     Clear Competition
                   </button>
                 )}
+                {currentUser?.isAdmin && (
+                  <button onClick={deleteAllScores} className="ml-4 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm">
+                    Delete All Scores
+                  </button>
+                )}
               </div>
             </div>
             <div className="flex gap-2">
               <button onClick={() => setActiveTab('voting')} className={`px-4 py-2 rounded ${activeTab === 'voting' ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
                 Voting
               </button>
-              <button onClick={() => setActiveTab('results')} className={`px-4 py-2 rounded ${activeTab === 'results' ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
+              <button onClick={() => {
+                setActiveTab('results');
+                fetchAllScoresDebug(); // Manually fetch scores from Firebase
+              }} className={`px-4 py-2 rounded ${activeTab === 'results' ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
                 Results
               </button>
+
             </div>
           </header>
           {activeTab === 'voting' ? (
@@ -374,4 +542,8 @@ const App = () => {
   return null;
 };
 
+
+
+
 export default App;
+

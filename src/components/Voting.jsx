@@ -1,8 +1,67 @@
 // components/Voting.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { CRITERIA } from '../constants';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase/firebaseConfig';
 
 const Voting = ({ activeContest, currentContestant, updateScore, getScore, setCurrentContestant }) => {
+    const [scores, setScores] = useState({});
+    const [confirmation, setConfirmation] = useState('');
+
+    useEffect(() => {
+        const fetchScores = async () => {
+            if (currentContestant) {
+                const newScores = {};
+                for (const criterion of CRITERIA) {
+                    newScores[criterion.id] = await getScore(currentContestant, criterion.id);
+                }
+                newScores['overall'] = await getScore(currentContestant, 'overall');
+                console.log('Fetched scores:', newScores);
+                setScores(newScores);
+            }
+        };
+        fetchScores();
+    }, [currentContestant, getScore]);
+
+    const handleScoreChange = (contestantId, criterionId, value) => {
+        const newScores = {
+            ...scores,
+            [criterionId]: parseFloat(value)
+        };
+
+        // Calculate overall score
+        let overall = 0;
+        let hasAllScores = true;
+        CRITERIA.forEach(criterion => {
+            if (newScores[criterion.id] !== undefined) {
+                overall += newScores[criterion.id] * criterion.weight;
+            } else {
+                hasAllScores = false;
+            }
+        });
+        if (hasAllScores) {
+            newScores['overall'] = overall;
+        }
+
+        setScores(newScores);
+        updateScore(contestantId, criterionId, value);
+        if (hasAllScores) {
+            updateScore(contestantId, 'overall', overall);
+        }
+    };
+
+    const handleSendScores = async () => {
+        if (currentContestant) {
+            console.log('Sending scores:', scores);
+            for (const criterion of CRITERIA) {
+                await updateScore(currentContestant, criterion.id, scores[criterion.id] || 0);
+            }
+            await updateScore(currentContestant, 'overall', scores['overall'] || 0);
+            setConfirmation('Scores sent successfully!');
+            setTimeout(() => setConfirmation(''), 3000);
+        }
+    };
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Contestant List */}
@@ -38,12 +97,12 @@ const Voting = ({ activeContest, currentContestant, updateScore, getScore, setCu
                                         type="range"
                                         min="1"
                                         max="10"
-                                        value={getScore(currentContestant, criterion.id) || 1}
-                                        onChange={(e) => updateScore(currentContestant, criterion.id, e.target.value)}
+                                        value={scores[criterion.id] || 1}
+                                        onChange={(e) => handleScoreChange(currentContestant, criterion.id, e.target.value)}
                                         className="w-full"
                                     />
                                     <span className="text-lg font-bold w-8 text-center">
-                                        {getScore(currentContestant, criterion.id) || 1}
+                                        {scores[criterion.id] || 1}
                                     </span>
                                 </div>
                             </div>
@@ -52,8 +111,8 @@ const Voting = ({ activeContest, currentContestant, updateScore, getScore, setCu
                         <div className="mt-8 p-4 bg-purple-200 rounded-lg">
                             <h3 className="font-medium text-purple-900">Weighted Overall Score:</h3>
                             <div className="text-2xl font-bold mt-1">
-                                {getScore(currentContestant, 'overall')
-                                    ? getScore(currentContestant, 'overall').toFixed(1)
+                                {scores['overall']
+                                    ? scores['overall'].toFixed(1)
                                     : 'Rate all categories to see overall score'}
                             </div>
                             <p className="text-xs text-gray-500 mt-1">
