@@ -1,4 +1,26 @@
-import React, { useState, useEffect } from 'react';
+const fs = require('fs');
+const path = require('path');
+
+// Define the path to the App.js file and the backup file
+const appPath = path.join(__dirname, 'src', 'App.js');
+const backupPath = path.join(__dirname, 'src', 'App.js.bak');
+
+// Check if src/App.js exists
+if (!fs.existsSync(appPath)) {
+  console.error("Error: src/App.js not found! Make sure you're in the correct folder.");
+  process.exit(1);
+}
+
+// Read the current App.js content (for backup purposes)
+const currentContent = fs.readFileSync(appPath, 'utf8');
+
+// Create a backup file
+fs.writeFileSync(backupPath, currentContent, 'utf8');
+console.log(`Backup created at ${backupPath}`);
+
+// New content for App.js with global competition and session persistence modifications,
+// plus inline admin controls for clearing competition and editing votes.
+const newAppJsContent = `import React, { useState, useEffect } from 'react';
 import { ADMIN_PASSWORD, CRITERIA, initialContests } from './constants';
 import LoginScreen from './components/LoginScreen';
 import SessionScreen from './components/SessionScreen';
@@ -30,12 +52,9 @@ const App = () => {
   const [activeContestId, setActiveContestId] = useState('melo2025');
   const [currentContestant, setCurrentContestant] = useState(null);
   const [selectedContestant, setSelectedContestant] = useState(null);
-
+  
   // Get active contest
   const activeContest = contests.find(c => c.id === activeContestId) || contests[0];
-
-  // New state for tracking if session was started by admin
-  const [isAdminSession, setIsAdminSession] = useState(false);
 
   // Load global data and current session on mount
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,7 +108,6 @@ const App = () => {
         setPassword('');
         setShowAdminLogin(false);
         setLoginError('');
-        setIsAdminSession(true);
       } else {
         setLoginError("Incorrect admin password");
       }
@@ -290,7 +308,6 @@ const App = () => {
         switchUser={switchUser}
         deleteUser={deleteUser}
         goBack={() => setPage('main')}
-        addUser={(newUser) => setUsers([...users, { id: users.length + 1, ...newUser }])}
       />
     );
   }
@@ -312,7 +329,7 @@ const App = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
               <div>
                 <h1 className="text-2xl font-bold text-purple-800">{activeContest.name}</h1>
-                {(currentUser?.isAdmin || isAdminSession) && (
+                {currentUser?.isAdmin && (
                   <div className="flex space-x-4 mt-1">
                     <button onClick={() => setPage('contestSelection')} className="text-sm text-purple-600 hover:underline">
                       Change Contest
@@ -338,10 +355,10 @@ const App = () => {
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setActiveTab('voting')} className={`px-4 py-2 rounded ${activeTab === 'voting' ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
+              <button onClick={() => setActiveTab('voting')} className={\`px-4 py-2 rounded \${activeTab === 'voting' ? 'bg-purple-600 text-white' : 'bg-gray-200'}\`}>
                 Voting
               </button>
-              <button onClick={() => setActiveTab('results')} className={`px-4 py-2 rounded ${activeTab === 'results' ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
+              <button onClick={() => setActiveTab('results')} className={\`px-4 py-2 rounded \${activeTab === 'results' ? 'bg-purple-600 text-white' : 'bg-gray-200'}\`}>
                 Results
               </button>
             </div>
@@ -375,3 +392,8 @@ const App = () => {
 };
 
 export default App;
+`;
+
+// Write the new content to src/App.js
+fs.writeFileSync(appPath, newAppJsContent, 'utf8');
+console.log("src/App.js patched successfully!");

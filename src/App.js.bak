@@ -26,19 +26,15 @@ const App = () => {
   const [allScores, setAllScores] = useState({});
 
   // Contest state
-  const [contests] = useState(initialContests);
+  const [contests, setContests] = useState(initialContests);
   const [activeContestId, setActiveContestId] = useState('melo2025');
   const [currentContestant, setCurrentContestant] = useState(null);
   const [selectedContestant, setSelectedContestant] = useState(null);
-
+  
   // Get active contest
   const activeContest = contests.find(c => c.id === activeContestId) || contests[0];
 
-  // New state for tracking if session was started by admin
-  const [isAdminSession, setIsAdminSession] = useState(false);
-
   // Load global data and current session on mount
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const storedGlobalUsers = localStorage.getItem('globalUsers');
     if (storedGlobalUsers) {
@@ -89,7 +85,6 @@ const App = () => {
         setPassword('');
         setShowAdminLogin(false);
         setLoginError('');
-        setIsAdminSession(true);
       } else {
         setLoginError("Incorrect admin password");
       }
@@ -290,7 +285,6 @@ const App = () => {
         switchUser={switchUser}
         deleteUser={deleteUser}
         goBack={() => setPage('main')}
-        addUser={(newUser) => setUsers([...users, { id: users.length + 1, ...newUser }])}
       />
     );
   }
@@ -312,7 +306,7 @@ const App = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
               <div>
                 <h1 className="text-2xl font-bold text-purple-800">{activeContest.name}</h1>
-                {(currentUser?.isAdmin || isAdminSession) && (
+                {currentUser?.isAdmin && (
                   <div className="flex space-x-4 mt-1">
                     <button onClick={() => setPage('contestSelection')} className="text-sm text-purple-600 hover:underline">
                       Change Contest
