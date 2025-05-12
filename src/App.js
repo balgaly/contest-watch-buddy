@@ -29,7 +29,7 @@ const App = () => {
 
   // Contest state
   const [contests] = useState(initialContests);
-  const [activeContestId, setActiveContestId] = useState('melo2025');
+  const [activeContestId, setActiveContestId] = useState('euro2025sf1');
   const [currentContestant, setCurrentContestant] = useState(null);
   const [selectedContestant, setSelectedContestant] = useState(null);
   
@@ -37,12 +37,21 @@ const App = () => {
   const activeContest = contests.find(c => c.id === activeContestId) || contests[0];
 
   // Load global data and current session on mount
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    const storedGlobalUsers = localStorage.getItem('globalUsers');
-    if (storedGlobalUsers) {
-      setUsers(JSON.parse(storedGlobalUsers));
-    }
+    // Fetch users from Firestore
+    const fetchUsers = async () => {
+      try {
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setUsers(usersList);
+        localStorage.setItem('globalUsers', JSON.stringify(usersList));
+      } catch (e) {
+        // fallback to localStorage if Firestore fails
+        const storedGlobalUsers = localStorage.getItem('globalUsers');
+        if (storedGlobalUsers) setUsers(JSON.parse(storedGlobalUsers));
+      }
+    };
+    fetchUsers();
     const storedGlobalAllScores = localStorage.getItem('globalAllScores');
     if (storedGlobalAllScores) {
       setAllScores(JSON.parse(storedGlobalAllScores));
@@ -73,31 +82,51 @@ const App = () => {
   }, [currentUser, activeContestId]);
 
   // Handler for login
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!username.trim()) {
       setLoginError("Please enter your name");
       return;
     }
+    let newUser;
     if (showAdminLogin) {
       if (password === ADMIN_PASSWORD) {
-        const newUser = { id: Date.now().toString(), name: username, isAdmin: true };
-        setUsers(prev => [...prev, newUser]);
-        setCurrentUser(newUser);
-        setPage('main');
-        setUsername('');
-        setPassword('');
-        setShowAdminLogin(false);
-        setLoginError('');
+        newUser = { name: username, isAdmin: true };
       } else {
         setLoginError("Incorrect admin password");
+        return;
       }
     } else {
-      const newUser = { id: Date.now().toString(), name: username, isAdmin: false };
-      setUsers(prev => [...prev, newUser]);
+      newUser = { name: username, isAdmin: false };
+    }
+    try {
+      // Check if user already exists in Firestore (by name)
+      const usersSnapshot = await getDocs(collection(db, "users"));
+      let existing = null;
+      usersSnapshot.forEach(docu => {
+        if (docu.data().name === username) existing = { id: docu.id, ...docu.data() };
+      });
+      let userId;
+      if (existing) {
+        userId = existing.id;
+        newUser = existing;
+      } else {
+        // Add new user to Firestore
+        userId = Date.now().toString();
+        await setDoc(doc(db, "users", userId), newUser);
+        newUser = { ...newUser, id: userId };
+      }
+      setUsers(prev => {
+        const filtered = prev.filter(u => u.id !== userId);
+        return [...filtered, newUser];
+      });
       setCurrentUser(newUser);
       setPage('main');
       setUsername('');
+      setPassword('');
+      setShowAdminLogin(false);
       setLoginError('');
+    } catch (e) {
+      setLoginError("Could not log in. Please try again.");
     }
   };
 
@@ -214,7 +243,20 @@ const App = () => {
     }
   };
 
-  const deleteUser = (userId) => {
+  // User management: fetch users from Firestore when opening user management page
+  useEffect(() => {
+    if (page === 'userManagement') {
+      (async () => {
+        try {
+          const usersSnapshot = await getDocs(collection(db, "users"));
+          const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setUsers(usersList);
+        } catch (e) {}
+      })();
+    }
+  }, [page]);
+
+  const deleteUser = async (userId) => {
     if (window.confirm("Are you sure you want to delete this user and their ratings?")) {
       setUsers(prev => prev.filter(u => u.id !== userId));
       const newScores = { ...allScores };
@@ -224,6 +266,9 @@ const App = () => {
         setCurrentUser(null);
         setPage('login');
       }
+      try {
+        await deleteDoc(doc(db, "users", userId));
+      } catch (e) {}
     }
   };
 
