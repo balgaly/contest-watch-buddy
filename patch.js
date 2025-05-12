@@ -392,6 +392,47 @@ const App = () => {
 };
 
 export default App;
+
+const initializeEuro2025SF1 = async () => {
+  const contestId = "euro2025sf1";
+  const contestants = [
+    { id: 1, name: "VÆB – RÓA", country: "Iceland" },
+    { id: 2, name: "Justyna Steczkowska – GAJA", country: "Poland" },
+    { id: 3, name: "Klemen – How Much Time Do We Have Left", country: "Slovenia" },
+    { id: 4, name: "Tommy Cash – Espresso Macchiato", country: "Estonia" },
+    { id: 5, name: "Ziferblat – Bird of Pray", country: "Ukraine" },
+    { id: 6, name: "KAJ – Bara Bada Bastu", country: "Sweden" },
+    { id: 7, name: "NAPA – Deslocado", country: "Portugal" },
+    { id: 8, name: "Kyle Alessandro – Lighter", country: "Norway" },
+    { id: 9, name: "Red Sebastian – Strobe Lights", country: "Belgium" },
+    { id: 10, name: "Mamagama – Run With U", country: "Azerbaijan" },
+    { id: 11, name: "Gabry Ponte – Tutta l'Italia", country: "San Marino" },
+    { id: 12, name: "Shkodra Elektronike – Zjerm", country: "Albania" },
+    { id: 13, name: "Claude – C'est la vie", country: "Netherlands" },
+    { id: 14, name: "Marko Bošnjak – Poison Cake", country: "Croatia" },
+    { id: 15, name: "Theo Evan – Shh", country: "Cyprus" }
+  ];
+
+  try {
+    const contestRef = collection(db, "contests");
+    const contestDocRef = doc(contestRef, contestId);
+
+    // Initialize the contest document
+    await setDoc(contestDocRef, { name: "Eurovision 2025 Semi Final 1" });
+
+    // Add contestants
+    for (const contestant of contestants) {
+      const contestantRef = doc(collection(contestDocRef, "contestants"), contestant.id.toString());
+      await setDoc(contestantRef, contestant);
+    }
+
+    console.log("✅ Eurovision 2025 Semi Final 1 initialized successfully in Firebase!");
+  } catch (error) {
+    console.error("🔥 Error initializing Eurovision 2025 Semi Final 1:", error);
+  }
+};
+
+initializeEuro2025SF1();
 `;
 
 // Write the new content to src/App.js

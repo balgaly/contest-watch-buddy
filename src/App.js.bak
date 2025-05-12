@@ -6,6 +6,8 @@ import UserManagement from './components/UserManagement';
 import ContestSelection from './components/ContestSelection';
 import Voting from './components/Voting';
 import Results from './components/Results';
+import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { db } from './firebase/firebaseConfig';
 
 const App = () => {
   // App state
@@ -26,13 +28,44 @@ const App = () => {
   const [allScores, setAllScores] = useState({});
 
   // Contest state
-  const [contests, setContests] = useState(initialContests);
-  const [activeContestId, setActiveContestId] = useState('melo2025');
+  const [contests, setContests] = useState([]);
+  const [activeContestId, setActiveContestId] = useState('euro2025sf1');
   const [currentContestant, setCurrentContestant] = useState(null);
   const [selectedContestant, setSelectedContestant] = useState(null);
   
   // Get active contest
-  const activeContest = contests.find(c => c.id === activeContestId) || contests[0];
+  const activeContest = contests.find(c => c.id === activeContestId) || null;
+
+  // Fetch contests from Firestore
+  const fetchContests = async () => {
+    try {
+        console.log("📡 Attempting to fetch contests from Firestore...");
+        const contestsRef = collection(db, "contests");
+        const contestsSnapshot = await getDocs(contestsRef);
+        
+        const fetchedContests = [];
+        
+        for (const contestDoc of contestsSnapshot.docs) {
+            const contestData = { id: contestDoc.id, ...contestDoc.data(), contestants: [] };
+            
+            // Fetch contestants for this contest
+            const contestantsRef = collection(db, "contests", contestDoc.id, "contestants");
+            const contestantsSnapshot = await getDocs(contestantsRef);
+            
+            contestData.contestants = contestantsSnapshot.docs.map(doc => ({
+                id: parseInt(doc.id),
+                ...doc.data()
+            }));
+            
+            fetchedContests.push(contestData);
+        }
+
+        console.log("✅ Contests and contestants fetched:", fetchedContests);
+        setContests(fetchedContests);
+    } catch (error) {
+        console.error("🔥 Error fetching contests:", error);
+    }
+  };
 
   // Load global data and current session on mount
   useEffect(() => {
@@ -50,6 +83,15 @@ const App = () => {
       setCurrentUser(session.currentUser);
       setActiveContestId(session.activeContestId);
     }
+    fetchContests();
+  }, []);
+
+  useEffect(() => {
+    console.log("Fetching contests...");
+    fetchContests().then(() => {
+        console.log("Contests fetched:", contests);
+        console.log("Active contest:", activeContest);
+    });
   }, []);
 
   // Persist global data
@@ -70,7 +112,7 @@ const App = () => {
   }, [currentUser, activeContestId]);
 
   // Handler for login
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!username.trim()) {
       setLoginError("Please enter your name");
       return;
@@ -85,6 +127,10 @@ const App = () => {
         setPassword('');
         setShowAdminLogin(false);
         setLoginError('');
+
+        // Add user to Firestore
+        const userRef = doc(db, 'users', newUser.id);
+        await setDoc(userRef, { name: newUser.name, isAdmin: true }, { merge: true });
       } else {
         setLoginError("Incorrect admin password");
       }
@@ -95,12 +141,17 @@ const App = () => {
       setPage('main');
       setUsername('');
       setLoginError('');
+
+      // Add user to Firestore
+      const userRef = doc(db, 'users', newUser.id);
+      await setDoc(userRef, { name: newUser.name, isAdmin: false }, { merge: true });
     }
   };
 
-  // Handler for logout: go to session screen
+  // Handler for logout: go to login screen
   const handleLogout = () => {
-    setPage('session');
+    setCurrentUser(null);
+    setPage('login');
   };
 
   // Resume session
@@ -115,17 +166,47 @@ const App = () => {
   };
 
   // Clear competition (admin-only)
-  const handleClearCompetition = () => {
-    if (window.confirm("Are you sure you want to clear the entire competition? This will remove all votes and users.")) {
-      setUsers([]);
-      setAllScores({});
-      setCurrentUser(null);
-      setPage('login');
-      localStorage.removeItem('currentSession');
-      localStorage.removeItem('globalUsers');
-      localStorage.removeItem('globalAllScores');
+  const handleClearCompetition = async () => {
+    if (window.confirm("Are you sure you want to clear all scores and users? This will not affect the competition name or contestants.")) {
+        try {
+            // Clear scores
+            const contestsRef = collection(db, "contests");
+            const contestsSnapshot = await getDocs(contestsRef);
+            for (const contestDoc of contestsSnapshot.docs) {
+                const contestantsRef = collection(db, "contests", contestDoc.id, "contestants");
+                const contestantsSnapshot = await getDocs(contestantsRef);
+                for (const contestantDoc of contestantsSnapshot.docs) {
+                    const scoresRef = collection(db, "contests", contestDoc.id, "contestants", contestantDoc.id, "scores");
+                    const scoresSnapshot = await getDocs(scoresRef);
+                    for (const scoreDoc of scoresSnapshot.docs) {
+                        await deleteDoc(doc(db, "contests", contestDoc.id, "contestants", contestantDoc.id, "scores", scoreDoc.id));
+                    }
+                }
+            }
+
+            // Clear users
+            const usersRef = collection(db, "users");
+            const usersSnapshot = await getDocs(usersRef);
+            for (const userDoc of usersSnapshot.docs) {
+                await deleteDoc(doc(db, "users", userDoc.id));
+            }
+
+            // Clear local state
+            setUsers([]);
+            setAllScores({});
+            setCurrentUser(null);
+            setPage('login');
+            localStorage.removeItem('currentSession');
+            localStorage.removeItem('globalUsers');
+            localStorage.removeItem('globalAllScores');
+
+            alert("Scores and users cleared successfully. Contestants and competition name remain intact.");
+        } catch (error) {
+            console.error("Error clearing scores and users:", error);
+            alert("Failed to clear scores and users. Please try again.");
+        }
     }
-  };
+};
 
   // Admin-only: edit a specific vote
   const handleEditVote = (userId, contestId, contestantId, criterionId) => {
@@ -193,8 +274,10 @@ const App = () => {
     setPage('main');
   };
 
-  const updateScore = (contestantId, criterionId, value) => {
+  const updateScore = async (contestantId, criterionId, value) => {
     if (!currentUser) return;
+    console.log(`Updating score: Contestant ${contestantId}, Criterion ${criterionId}, Value ${value}`);
+    console.log(`Writing to contest: ${activeContestId}`);
     setAllScores(prev => {
       const userScores = prev[currentUser.id] || {};
       const contestScores = userScores[activeContestId] || {};
@@ -226,6 +309,28 @@ const App = () => {
         }
       };
     });
+
+    const contestantRef = doc(
+      db,
+      "contests",
+      activeContestId,
+      "contestants",
+      contestantId.toString()
+    );
+
+    await setDoc(contestantRef, { created: true }, { merge: true });
+
+    const scoreRef = doc(
+      db,
+      "contests",
+      activeContestId,
+      "contestants",
+      contestantId.toString(),
+      "scores",
+      currentUser.id.toString()
+    );
+
+    await setDoc(scoreRef, { [criterionId]: parseFloat(value) || 0 }, { merge: true });
   };
 
   const getScore = (contestantId, criterionId) => {
@@ -260,6 +365,11 @@ const App = () => {
     setSelectedContestant(selectedContestant === contestantId ? null : contestantId);
   };
 
+  const handleContestSelection = (contestId) => {
+    setActiveContestId(contestId);
+    setPage('main');
+  };
+
   if (page === 'login') {
     return (
       <LoginScreen
@@ -290,12 +400,20 @@ const App = () => {
   }
   if (page === 'contestSelection') {
     return (
-      <ContestSelection
-        contests={contests}
-        activeContestId={activeContestId}
-        switchContest={switchContest}
-        goBack={() => setPage('main')}
-      />
+      <div className="p-4">
+        <h2 className="text-xl font-bold mb-4">Select a Contest</h2>
+        <ul className="space-y-2">
+          {contests.map(contest => (
+            <li
+              key={contest.id}
+              className="cursor-pointer text-purple-800 hover:underline"
+              onClick={() => handleContestSelection(contest.id)}
+            >
+              {contest.name}
+            </li>
+          ))}
+        </ul>
+      </div>
     );
   }
   if (page === 'main') {
@@ -369,3 +487,44 @@ const App = () => {
 };
 
 export default App;
+
+const initializeEuro2025SF1 = async () => {
+  const contestId = "euro2025sf1";
+  const contestants = [
+    { id: 1, name: "VÆB – RÓA", country: "Iceland" },
+    { id: 2, name: "Justyna Steczkowska – GAJA", country: "Poland" },
+    { id: 3, name: "Klemen – How Much Time Do We Have Left", country: "Slovenia" },
+    { id: 4, name: "Tommy Cash – Espresso Macchiato", country: "Estonia" },
+    { id: 5, name: "Ziferblat – Bird of Pray", country: "Ukraine" },
+    { id: 6, name: "KAJ – Bara Bada Bastu", country: "Sweden" },
+    { id: 7, name: "NAPA – Deslocado", country: "Portugal" },
+    { id: 8, name: "Kyle Alessandro – Lighter", country: "Norway" },
+    { id: 9, name: "Red Sebastian – Strobe Lights", country: "Belgium" },
+    { id: 10, name: "Mamagama – Run With U", country: "Azerbaijan" },
+    { id: 11, name: "Gabry Ponte – Tutta l'Italia", country: "San Marino" },
+    { id: 12, name: "Shkodra Elektronike – Zjerm", country: "Albania" },
+    { id: 13, name: "Claude – C'est la vie", country: "Netherlands" },
+    { id: 14, name: "Marko Bošnjak – Poison Cake", country: "Croatia" },
+    { id: 15, name: "Theo Evan – Shh", country: "Cyprus" }
+  ];
+
+  try {
+    const contestRef = collection(db, "contests");
+    const contestDocRef = doc(contestRef, contestId);
+
+    // Initialize the contest document
+    await setDoc(contestDocRef, { name: "Eurovision 2025 Semi Final 1" });
+
+    // Add contestants
+    for (const contestant of contestants) {
+      const contestantRef = doc(collection(contestDocRef, "contestants"), contestant.id.toString());
+      await setDoc(contestantRef, contestant);
+    }
+
+    console.log("✅ Eurovision 2025 Semi Final 1 initialized successfully in Firebase!");
+  } catch (error) {
+    console.error("🔥 Error initializing Eurovision 2025 Semi Final 1:", error);
+  }
+};
+
+initializeEuro2025SF1();

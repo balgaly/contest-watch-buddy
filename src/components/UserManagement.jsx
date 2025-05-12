@@ -1,18 +1,7 @@
 // components/UserManagement.jsx
 import React from 'react';
 
-const UserManagement = ({ users, currentUser, switchUser, deleteUser, goBack, addUser }) => {
-    const [newUserName, setNewUserName] = React.useState('');
-    const [isAdmin, setIsAdmin] = React.useState(false);
-
-    const handleAddUser = () => {
-        if (newUserName.trim() !== '') {
-            addUser({ name: newUserName, isAdmin });
-            setNewUserName('');
-            setIsAdmin(false);
-        }
-    };
-
+const UserManagement = ({ users, currentUser, switchUser, deleteUser, goBack }) => {
     return (
         <div className="min-h-screen bg-purple-200 p-4">
             <div className="max-w-lg mx-auto bg-white rounded-lg shadow-lg p-6">
@@ -44,27 +33,6 @@ const UserManagement = ({ users, currentUser, switchUser, deleteUser, goBack, ad
                 ) : (
                     <p className="text-center text-gray-500 mb-6">No users yet</p>
                 )}
-                <div className="mb-6">
-                    <input
-                        type="text"
-                        value={newUserName}
-                        onChange={(e) => setNewUserName(e.target.value)}
-                        placeholder="Enter user name"
-                        className="w-full mb-2 p-2 border rounded"
-                    />
-                    <div className="flex items-center mb-2">
-                        <input
-                            type="checkbox"
-                            checked={isAdmin}
-                            onChange={(e) => setIsAdmin(e.target.checked)}
-                            className="mr-2"
-                        />
-                        <label>Admin</label>
-                    </div>
-                    <button onClick={handleAddUser} className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
-                        Add User
-                    </button>
-                </div>
                 <button onClick={goBack} className="w-full bg-purple-800 text-white py-2 px-4 rounded hover:bg-purple-900">
                     Back to Main
                 </button>
