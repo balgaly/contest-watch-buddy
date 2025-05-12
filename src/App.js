@@ -125,6 +125,10 @@ const App = () => {
       setPassword('');
       setShowAdminLogin(false);
       setLoginError('');
+      // Fetch latest users from Firestore after login
+      const usersSnapshotAfterLogin = await getDocs(collection(db, "users"));
+      const usersList = usersSnapshotAfterLogin.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setUsers(usersList);
     } catch (e) {
       setLoginError("Could not log in. Please try again.");
     }
