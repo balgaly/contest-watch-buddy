@@ -179,13 +179,17 @@ const Results = ({ activeContest }) => {
 
     // Sort contestants based on sortConfig
     const sortedContestants = [...activeContest.contestants].sort((a, b) => {
+        const getSortableScore = (score) => {
+            const parsed = parseFloat(score);
+            return isNaN(parsed) ? 0 : parsed;
+        };
         if (sortConfig.key === 'overall') {
-            const scoreA = parseFloat(getOverallScore(a.id));
-            const scoreB = parseFloat(getOverallScore(b.id));
+            const scoreA = getSortableScore(getOverallScore(a.id));
+            const scoreB = getSortableScore(getOverallScore(b.id));
             return sortConfig.direction === 'asc' ? scoreA - scoreB : scoreB - scoreA;
         } else {
-            const scoreA = parseFloat(getAverageScore(a.id, sortConfig.key));
-            const scoreB = parseFloat(getAverageScore(b.id, sortConfig.key));
+            const scoreA = getSortableScore(getAverageScore(a.id, sortConfig.key));
+            const scoreB = getSortableScore(getAverageScore(b.id, sortConfig.key));
             return sortConfig.direction === 'asc' ? scoreA - scoreB : scoreB - scoreA;
         }
     });
