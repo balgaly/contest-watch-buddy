@@ -19,7 +19,26 @@ const countryCodeMap = {
     'Albania': 'AL',
     'Netherlands': 'NL',
     'Croatia': 'HR',
-    'Cyprus': 'CY'
+    'Cyprus': 'CY',
+    'Australia': 'AU',
+    'Montenegro': 'ME',
+    'Ireland': 'IE',
+    'Latvia': 'LV',
+    'Armenia': 'AM',
+    'Austria': 'AT',
+    'United Kingdom': 'GB',
+    'Greece': 'GR',
+    'Lithuania': 'LT',
+    'Malta': 'MT',
+    'Georgia': 'GE',
+    'France': 'FR',
+    'Denmark': 'DK',
+    'Czechia': 'CZ',
+    'Luxembourg': 'LU',
+    'Israel': 'IL',
+    'Germany': 'DE',
+    'Serbia': 'RS',
+    'Finland': 'FI'
 };
 
 const Results = ({ activeContest }) => {
@@ -113,12 +132,10 @@ const Results = ({ activeContest }) => {
 
     useEffect(() => {
         fetchScores();
-    }, [activeContest]);
-
-    const formatScore = (score) => {
+    }, [activeContest]);    const formatScore = (score) => {
         if (score === "-") return "-";
         const numScore = parseFloat(score);
-        return Number.isInteger(numScore) ? numScore.toString() : numScore.toFixed(2);
+        return Number.isInteger(numScore) ? numScore.toFixed(0) : numScore.toFixed(2);
     };
 
     // Get average score per criterion
@@ -250,79 +267,85 @@ const Results = ({ activeContest }) => {
     // Mobile card view for results
     const isMobile = window.innerWidth < 640;
     if (isMobile) {
-        return (
+        // Always sort by overall score, descending
+        const sortedByOverall = [...sortedContestants].sort((a, b) => {
+            const scoreA = parseFloat(getOverallScore(a.id));
+            const scoreB = parseFloat(getOverallScore(b.id));
+            return scoreB - scoreA;
+        });        return (
             <div className="p-2">
-                <h2 className="text-xl font-bold mb-4 text-center">Results</h2>
-                {sortedContestants.map((contestant, idx) => {
+                {sortedByOverall.map((contestant, idx) => {
                     const position = idx + 1;
                     const isOpen = selectedContestant === contestant.id;
+                    const overallScore = getOverallScore(contestant.id);
                     return (
-                        <div key={contestant.id} className="bg-white rounded-lg shadow mb-3 p-3 flex flex-col">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <span className={`inline-block w-7 h-7 rounded-full text-white text-center font-bold text-base flex items-center justify-center ${position === 1 ? 'bg-yellow-400' : position === 2 ? 'bg-gray-400' : position === 3 ? 'bg-orange-400' : 'bg-purple-400'}`}>{position}</span>
+                        <div key={contestant.id} className={`bg-gradient-to-r from-white to-cyan-50 rounded-lg shadow-md mb-2 flex flex-col border border-cyan-100 ${isOpen ? 'shadow-lg' : ''}`}>
+                            <div className="flex items-center justify-between px-2 py-1.5 min-h-[44px]" onClick={() => toggleContestantDetails(contestant.id)}>
+                                <div className="flex items-center gap-2 flex-1 min-w-0">
+                                    <span className={`flex-shrink-0 inline-flex w-5 h-5 rounded-full text-white text-sm items-center justify-center shadow-sm ${position === 1 ? 'bg-gradient-to-br from-amber-400 to-yellow-500' : position === 2 ? 'bg-gradient-to-br from-slate-300 to-slate-400' : position === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-700' : 'bg-gradient-to-br from-cyan-400 to-cyan-500'}`}>{position}</span>
                                     {contestant.country && countryCodeMap[contestant.country] && (
                                         <ReactCountryFlag
                                             countryCode={countryCodeMap[contestant.country]}
                                             svg
-                                            style={{ width: '1.3em', height: '1.3em', marginRight: '0.3em', verticalAlign: 'middle' }}
+                                            style={{ width: '1.5em', height: '1.5em' }}
                                             title={contestant.country}
                                         />
                                     )}
-                                    <span className="font-bold text-purple-900 text-base">{contestant.name}</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="text-right">
-                                        <div className="text-xs text-gray-500">Overall</div>
-                                        <div className="text-xl font-bold text-purple-700">{getOverallScore(contestant.id)}</div>
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                    {/* Criteria scores as fixed-width pills for alignment */}
+                                    <div className="flex gap-1 mr-1">
+                                        {CRITERIA.map(criterion => (
+                                            <span key={criterion.id} className="w-7 px-0.5 py-0.5 rounded bg-cyan-100 text-cyan-700 text-xs font-semibold text-center" title={criterion.label}>
+                                                {formatScore(getAverageScore(contestant.id, criterion.id))}
+                                            </span>
+                                        ))}
                                     </div>
-                                    <button
-                                        className={`ml-2 w-7 h-7 flex items-center justify-center rounded-full border border-purple-200 bg-purple-50 text-purple-700 text-base focus:outline-none focus:ring-2 focus:ring-purple-300 transition-transform ${isOpen ? 'rotate-45' : ''}`}
-                                        aria-label={isOpen ? 'Hide Details' : 'Show Details'}
-                                        onClick={() => toggleContestantDetails(contestant.id)}
+                                    {/* Emphasized overall score, fixed width for alignment */}
+                                    <span className={`px-2 py-1 rounded font-extrabold text-[15px] shadow-sm border border-cyan-200 bg-white ${parseFloat(overallScore) >= 8 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : parseFloat(overallScore) >= 6 ? 'text-cyan-700' : 'text-cyan-800'} text-center block`}
+                                        style={{ width: 44 }}
                                     >
-                                        <span style={{fontWeight:'normal',fontSize:'1.2em',lineHeight:'1em'}}>{isOpen ? '−' : '+'}</span>
+                                        {overallScore}
+                                    </span>
+                                    <button
+                                        className={`w-6 h-6 flex items-center justify-center rounded-full border border-cyan-200 bg-cyan-50 text-cyan-600 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-300 transition-all duration-200 ${isOpen ? 'rotate-180 bg-cyan-100' : ''}`}
+                                        aria-label={isOpen ? 'Hide Details' : 'Show Details'}
+                                    >
+                                        <svg className="w-4 h-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path d="M19 9l-7 7-7-7"></path>
+                                        </svg>
                                     </button>
                                 </div>
                             </div>
                             {isOpen && (
-                                <div className="mt-3">
-                                    <div className="mb-2">
-                                        <div className="font-semibold text-purple-800 mb-1">Average by Criteria</div>
-                                        <ul>
-                                            {CRITERIA.map(criterion => (
-                                                <li key={criterion.id} className="flex justify-between text-sm mb-1">
-                                                    <span>{criterion.label}</span>
-                                                    <span className="font-mono">{getAverageScore(contestant.id, criterion.id)}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <div className="font-semibold text-purple-800 mb-1">Individual Votes</div>
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-xs border border-gray-200">
-                                                <thead>
-                                                    <tr className="bg-gray-100">
-                                                        <th className="px-2 py-1 border">Voter</th>
-                                                        {CRITERIA.map(criterion => (
-                                                            <th key={criterion.id} className="px-2 py-1 border">{criterion.label}</th>
-                                                        ))}
-                                                        <th className="px-2 py-1 border">Overall</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {Object.entries(allScores[contestant.id] || {}).map(([userId, scores]) => (
-                                                        <tr key={userId}>
-                                                            <td className="px-2 py-1 border">{scores.voterIsAdmin ? <span className="font-bold">{getVoterName(userId, scores)}</span> : getVoterName(userId, scores)}</td>
+                                <div className="px-2 py-1.5 border-t border-cyan-100 bg-white bg-opacity-60">
+                                    <div className="text-xs">
+                                        <div className="space-y-1">
+                                            {Object.entries(allScores[contestant.id] || {})
+                                                .sort((a, b) => {
+                                                    const scoreA = parseFloat(a[1].overall);
+                                                    const scoreB = parseFloat(b[1].overall);
+                                                    return scoreB - scoreA;
+                                                })
+                                                .map(([userId, scores]) => (
+                                                    <div key={userId} className="flex items-center gap-1.5 hover:bg-cyan-50 p-1 rounded transition-colors">
+                                                        <span className={`${scores.voterIsAdmin ? "font-medium text-cyan-900" : "text-cyan-800"} flex-1`}>
+                                                            {getVoterName(userId, scores)}
+                                                        </span>
+                                                        <div className="flex gap-1 mr-1">
                                                             {CRITERIA.map(criterion => (
-                                                                <td key={criterion.id} className="px-2 py-1 border text-center">{scores[criterion.id] !== undefined ? formatScore(scores[criterion.id]) : '-'}</td>
+                                                                <span key={criterion.id} className="w-7 px-0.5 py-0.5 rounded bg-cyan-100 text-cyan-700 text-xs font-semibold text-center" title={criterion.label}>
+                                                                    {formatScore(scores[criterion.id])}
+                                                                </span>
                                                             ))}
-                                                            <td className="px-2 py-1 border text-center font-bold">{scores.overall !== undefined ? formatScore(scores.overall) : '-'}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
+                                                        </div>
+                                                        <span className={`px-2 py-1 rounded font-extrabold text-[15px] shadow-sm border border-cyan-200 bg-white ${parseFloat(scores.overall) >= 8 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : parseFloat(scores.overall) >= 6 ? 'text-cyan-700' : 'text-cyan-800'} text-center block`}
+                                                            style={{ width: 44 }}
+                                                        >
+                                                            {formatScore(scores.overall)}
+                                                        </span>
+                                                    </div>
+                                                ))}
                                         </div>
                                     </div>
                                 </div>
@@ -332,30 +355,19 @@ const Results = ({ activeContest }) => {
                 })}
             </div>
         );
-    }
-
-    return (
+    }    return (
         <div className="p-2 sm:p-4">
-            <h2 className="text-xl font-bold mb-4 text-center sm:text-left">Results</h2>
             {Object.keys(allScores).length === 0 ? (
                 <p>No results available.</p>
             ) : (
                 <div className="overflow-x-auto w-full">
-                    <table className="min-w-[600px] w-full border-collapse border border-gray-300 text-xs sm:text-sm">
+                    <table className="min-w-[600px] w-full border-collapse text-xs sm:text-sm">
                         <thead>
-                            <tr className="bg-gray-200">
-                                <th className="border border-gray-300 px-2 sm:px-4 py-2">Contestant</th>
-                                {CRITERIA.map((criterion) => (
-                                    <th
-                                        key={criterion.id}
-                                        className="border border-gray-300 px-2 sm:px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                        onClick={() => handleSort(criterion.id)}
-                                    >
-                                        {criterion.label} {sortConfig.key === criterion.id && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                                    </th>
-                                ))}
+                            <tr className="bg-gradient-to-r from-cyan-50 to-cyan-100">
+                                <th className="border border-cyan-200 px-2 sm:px-4 py-2 text-left text-cyan-900">Contestant</th>
+                                <th className="border border-cyan-200 px-2 sm:px-4 py-2 text-center text-cyan-900">Criteria Scores</th>
                                 <th
-                                    className="border border-gray-300 px-2 sm:px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                    className="border border-cyan-200 px-2 sm:px-4 py-2 cursor-pointer hover:bg-cyan-100 text-center text-cyan-900 w-20"
                                     onClick={() => handleSort('overall')}
                                 >
                                     Overall {sortConfig.key === 'overall' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
@@ -366,43 +378,54 @@ const Results = ({ activeContest }) => {
                             {sortedContestants.map((contestant) => (
                                 <React.Fragment key={contestant.id}>
                                     <tr
-                                        className="hover:bg-gray-100 cursor-pointer"
+                                        className={`border-b border-cyan-100 hover:bg-cyan-50 cursor-pointer transition-colors ${selectedContestant === contestant.id ? 'bg-cyan-50' : 'bg-white'}`}
                                         onClick={() => toggleContestantDetails(contestant.id)}
                                     >
-                                        <td className="border border-gray-300 px-2 sm:px-4 py-2">
-                                            {contestant.country && countryCodeMap[contestant.country] && (
-                                                <ReactCountryFlag
-                                                    countryCode={countryCodeMap[contestant.country]}
-                                                    svg
-                                                    style={{
-                                                        width: '1.2em',
-                                                        height: '1.2em',
-                                                        marginRight: '0.5em',
-                                                        verticalAlign: 'middle'
-                                                    }}
-                                                    title={contestant.country}
-                                                />
-                                            )}
-                                            {contestant.name}
-                                            {getContestantRank(contestant.id) === 1 && <span className="ml-2" title="1st Place">🏆</span>}
-                                            {getContestantRank(contestant.id) === 2 && <span className="ml-2" title="2nd Place">🥈</span>}
-                                            {getContestantRank(contestant.id) === 3 && <span className="ml-2" title="3rd Place">🥉</span>}
+                                        <td className="px-2 sm:px-4 py-2 border-x border-cyan-200">
+                                            <div className="flex items-center gap-2">
+                                                <span className={`inline-flex w-5 h-5 rounded-full text-white text-sm items-center justify-center shadow-sm ${getContestantRank(contestant.id) === 1 ? 'bg-gradient-to-br from-amber-400 to-yellow-500' : getContestantRank(contestant.id) === 2 ? 'bg-gradient-to-br from-slate-300 to-slate-400' : getContestantRank(contestant.id) === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-700' : 'bg-gradient-to-br from-cyan-400 to-cyan-500'}`}>{getContestantRank(contestant.id)}</span>
+                                                {contestant.country && countryCodeMap[contestant.country] && (
+                                                    <ReactCountryFlag
+                                                        countryCode={countryCodeMap[contestant.country]}
+                                                        svg
+                                                        style={{
+                                                            width: '1.2em',
+                                                            height: '1.2em'
+                                                        }}
+                                                        title={contestant.country}
+                                                    />
+                                                )}
+                                                <span className="font-medium text-cyan-900">{contestant.name}</span>
+                                            </div>
                                         </td>
-                                        {CRITERIA.map((criterion) => (
-                                            <td key={criterion.id} className="border border-gray-300 px-2 sm:px-4 py-2 text-center">
-                                                {getAverageScore(contestant.id, criterion.id)}
-                                            </td>
-                                        ))}
-                                        <td className="border border-gray-300 px-2 sm:px-4 py-2 font-bold text-center">
-                                            {getOverallScore(contestant.id)}
+                                        <td className="px-2 sm:px-4 py-2 border-x border-cyan-200">
+                                            <div className="flex justify-center gap-1">
+                                                {CRITERIA.map((criterion) => (
+                                                    <span
+                                                        key={criterion.id}
+                                                        className="w-7 px-0.5 py-0.5 rounded bg-cyan-100 text-cyan-700 text-xs font-semibold text-center"
+                                                        title={criterion.label}
+                                                    >
+                                                        {getAverageScore(contestant.id, criterion.id)}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="px-2 sm:px-4 py-2 text-center font-bold border-x border-cyan-200">
+                                            <span
+                                                className={`px-2 py-1 rounded font-extrabold text-[15px] shadow-sm border border-cyan-200 bg-white ${parseFloat(getOverallScore(contestant.id)) >= 8 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : parseFloat(getOverallScore(contestant.id)) >= 6 ? 'text-cyan-700' : 'text-cyan-800'} text-center block`}
+                                                style={{ width: 44 }}
+                                            >
+                                                {getOverallScore(contestant.id)}
+                                            </span>
                                         </td>
                                     </tr>
 
                                     {/* Detailed Individual Scores */}
                                     {selectedContestant === contestant.id && (
                                         <tr>
-                                            <td colSpan={CRITERIA.length + 2} className="bg-purple-50 p-2 sm:p-4">
-                                                <h3 className="font-medium text-purple-800 mb-2 text-center sm:text-left">
+                                            <td colSpan={3} className="bg-cyan-50 p-2 sm:p-4 border border-cyan-200">
+                                                <h3 className="font-medium text-cyan-900 mb-2">
                                                     {contestant.country && countryCodeMap[contestant.country] && (
                                                         <ReactCountryFlag
                                                             countryCode={countryCodeMap[contestant.country]}
@@ -418,37 +441,32 @@ const Results = ({ activeContest }) => {
                                                     )}
                                                     Individual Scores for {contestant.name}
                                                 </h3>
-                                                <div className="overflow-x-auto">
-                                                    <table className="min-w-[500px] w-full border-collapse border border-gray-300 text-xs sm:text-sm">
-                                                        <thead className="bg-gray-100">
-                                                            <tr>
-                                                                <th className="border border-gray-300 px-2 sm:px-4 py-2">Voter</th>
-                                                                {CRITERIA.map((criterion) => (
-                                                                    <th key={criterion.id} className="border border-gray-300 px-2 sm:px-4 py-2 text-center">
-                                                                        {criterion.label}
-                                                                    </th>
-                                                                ))}
-                                                                <th className="border border-gray-300 px-2 sm:px-4 py-2 text-center">Overall</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {Object.entries(allScores[contestant.id] || {}).map(([userId, scores]) => (
-                                                                <tr key={userId}>
-                                                                    <td className="border border-gray-300 px-2 sm:px-4 py-2">
-                                                                        {scores.voterIsAdmin ? <span className="font-bold">{getVoterName(userId, scores)}</span> : getVoterName(userId, scores)}
-                                                                    </td>
-                                                                    {CRITERIA.map((criterion) => (
-                                                                        <td key={criterion.id} className="border border-gray-300 px-2 sm:px-4 py-2 text-center">
-                                                                            {scores[criterion.id] !== undefined ? formatScore(scores[criterion.id]) : "-"}
-                                                                        </td>
+                                                <div className="space-y-1">
+                                                    {Object.entries(allScores[contestant.id] || {})
+                                                        .sort((a, b) => {
+                                                            const scoreA = parseFloat(a[1].overall);
+                                                            const scoreB = parseFloat(b[1].overall);
+                                                            return scoreB - scoreA;
+                                                        })
+                                                        .map(([userId, scores]) => (
+                                                            <div key={userId} className="flex items-center gap-1.5 hover:bg-cyan-50 p-1 rounded transition-colors">
+                                                                <span className={scores.voterIsAdmin ? "font-medium text-cyan-900" : "text-cyan-800"}>
+                                                                    {getVoterName(userId, scores)}
+                                                                </span>
+                                                                <div className="flex gap-1 mr-1">
+                                                                    {CRITERIA.map(criterion => (
+                                                                        <span key={criterion.id} className="w-7 px-0.5 py-0.5 rounded bg-cyan-100 text-cyan-700 text-xs font-semibold text-center" title={criterion.label}>
+                                                                            {formatScore(scores[criterion.id])}
+                                                                        </span>
                                                                     ))}
-                                                                    <td className="border border-gray-300 px-2 sm:px-4 py-2 text-center font-bold">
-                                                                        {scores.overall !== undefined ? formatScore(scores.overall) : "-"}
-                                                                    </td>
-                                                                </tr>
-                                                            ))}
-                                                        </tbody>
-                                                    </table>
+                                                                </div>
+                                                                <span className={`px-2 py-1 rounded font-extrabold text-[15px] shadow-sm border border-cyan-200 bg-white ${parseFloat(scores.overall) >= 8 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : parseFloat(scores.overall) >= 6 ? 'text-cyan-700' : 'text-cyan-800'} text-center block`}
+                                                                    style={{ width: 44 }}
+                                                                >
+                                                                    {formatScore(scores.overall)}
+                                                                </span>
+                                                            </div>
+                                                        ))}
                                                 </div>
                                             </td>
                                         </tr>

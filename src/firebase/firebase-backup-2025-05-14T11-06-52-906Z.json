@@ -1,0 +1,2326 @@
+{
+  "contests": {
+    "euro2025sf1": {
+      "name": "Eurovision 2025 Semi Final 1",
+      "contestants": {
+        "1": {
+          "name": "VÆB – RÓA",
+          "country": "Iceland",
+          "id": 1
+        },
+        "2": {
+          "country": "Poland",
+          "name": "Justyna Steczkowska – GAJA",
+          "id": 2
+        },
+        "3": {
+          "name": "Klemen – How Much Time Do We Have Left",
+          "country": "Slovenia",
+          "id": 3
+        },
+        "4": {
+          "country": "Estonia",
+          "id": 4,
+          "name": "Tommy Cash – Espresso Macchiato"
+        },
+        "5": {
+          "name": "Ziferblat – Bird of Pray",
+          "id": 5,
+          "country": "Ukraine"
+        },
+        "6": {
+          "country": "Sweden",
+          "id": 6,
+          "name": "KAJ – Bara Bada Bastu"
+        },
+        "7": {
+          "id": 7,
+          "country": "Portugal",
+          "name": "NAPA – Deslocado"
+        },
+        "8": {
+          "id": 8,
+          "country": "Norway",
+          "name": "Kyle Alessandro – Lighter"
+        },
+        "9": {
+          "id": 9,
+          "country": "Belgium",
+          "name": "Red Sebastian – Strobe Lights"
+        },
+        "10": {
+          "name": "Mamagama – Run With U",
+          "country": "Azerbaijan",
+          "id": 10
+        },
+        "11": {
+          "name": "Gabry Ponte – Tutta l'Italia",
+          "id": 11,
+          "country": "San Marino"
+        },
+        "12": {
+          "name": "Shkodra Elektronike – Zjerm",
+          "country": "Albania",
+          "id": 12
+        },
+        "13": {
+          "country": "Netherlands",
+          "name": "Claude – C'est la vie",
+          "id": 13
+        },
+        "14": {
+          "id": 14,
+          "name": "Marko Bošnjak – Poison Cake",
+          "country": "Croatia"
+        },
+        "15": {
+          "country": "Cyprus",
+          "id": 15,
+          "name": "Theo Evan – Shh"
+        }
+      },
+      "scores": {
+        "1": {
+          "1747148411686": {
+            "voterIsAdmin": true,
+            "songQuality": 4,
+            "voterName": "Snir",
+            "updatedAt": "2025-05-13T19:19:19.019Z",
+            "staging": 3,
+            "overall": 2.1
+          },
+          "1747149142750": {
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:12:50.185Z",
+            "vocalQuality": 2,
+            "songQuality": 4,
+            "voterName": "Chen",
+            "staging": 5,
+            "overall": 3.55
+          },
+          "1747162813056": {
+            "overall": 2.4,
+            "voterName": "Orit Baba",
+            "vocalQuality": 1,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:14:31.729Z",
+            "staging": 5,
+            "songQuality": 2
+          },
+          "1747162920503": {
+            "staging": 3,
+            "voterName": "omer❤️",
+            "updatedAt": "2025-05-13T19:15:59.876Z",
+            "voterIsAdmin": false,
+            "songQuality": 3,
+            "overall": 3,
+            "vocalQuality": 3
+          },
+          "1747162986850": {
+            "vocalQuality": 2,
+            "voterIsAdmin": false,
+            "staging": 2,
+            "updatedAt": "2025-05-13T19:14:41.482Z",
+            "overall": 1.2,
+            "voterName": "Noga 🦚"
+          },
+          "1747163001504": {
+            "updatedAt": "2025-05-13T19:14:34.767Z",
+            "voterIsAdmin": false,
+            "staging": 1,
+            "songQuality": 1,
+            "overall": 1,
+            "voterName": "Asaf",
+            "vocalQuality": 1
+          },
+          "1747163362234": {
+            "vocalQuality": 2,
+            "voterName": "עדי",
+            "staging": 3,
+            "overall": 1.7999999999999998,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:31:20.349Z"
+          },
+          "1747163395872": {
+            "overall": 0.65,
+            "staging": 2,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:12:37.366Z",
+            "songQuality": 1,
+            "voterName": "roy"
+          },
+          "1747163401026": {
+            "voterName": "גלית",
+            "voterIsAdmin": false,
+            "vocalQuality": 2,
+            "songQuality": 1,
+            "overall": 0.75,
+            "updatedAt": "2025-05-13T19:12:49.573Z"
+          },
+          "1747163416910": {
+            "songQuality": 3,
+            "voterName": "Yael",
+            "overall": 1.7000000000000002,
+            "updatedAt": "2025-05-13T19:14:23.798Z",
+            "staging": 2,
+            "voterIsAdmin": false
+          },
+          "1747163528937": {
+            "staging": 6,
+            "updatedAt": "2025-05-13T19:16:59.836Z",
+            "voterIsAdmin": false,
+            "songQuality": 4,
+            "vocalQuality": 4,
+            "overall": 4.5,
+            "voterName": "Amit"
+          },
+          "1747163771182": {
+            "voterName": "Amit Michaely",
+            "updatedAt": "2025-05-13T19:17:01.032Z",
+            "vocalQuality": 6,
+            "voterIsAdmin": false,
+            "overall": 3.6499999999999995,
+            "staging": 3,
+            "songQuality": 2
+          },
+          "1747163847050": {
+            "vocalQuality": 2,
+            "overall": 3.05,
+            "voterIsAdmin": false,
+            "songQuality": 4,
+            "updatedAt": "2025-05-13T19:55:56.963Z",
+            "staging": 3,
+            "voterName": "Eleni Foureira"
+          },
+          "1747164087276": {
+            "updatedAt": "2025-05-13T19:21:47.891Z",
+            "voterName": "Dgancha cha cha",
+            "voterIsAdmin": false,
+            "vocalQuality": 4,
+            "staging": 3,
+            "overall": 4.15,
+            "songQuality": 5
+          },
+          "1747164136177": {
+            "overall": 4.9,
+            "vocalQuality": 7,
+            "updatedAt": "2025-05-13T19:22:47.543Z",
+            "staging": 5,
+            "voterName": "Ahinoam ",
+            "songQuality": 3,
+            "voterIsAdmin": false
+          },
+          "1747164218191": {
+            "updatedAt": "2025-05-13T20:37:29.617Z",
+            "voterIsAdmin": false,
+            "songQuality": 1,
+            "vocalQuality": 3,
+            "voterName": "Aviv",
+            "overall": 2.1999999999999997,
+            "staging": 3
+          },
+          "1747165959970": {
+            "voterName": "Benyahav",
+            "overall": 2,
+            "staging": 2,
+            "updatedAt": "2025-05-13T19:54:35.118Z",
+            "vocalQuality": 2,
+            "songQuality": 2,
+            "voterIsAdmin": false
+          }
+        },
+        "2": {
+          "1747148411686": {
+            "updatedAt": "2025-05-13T19:24:52.136Z",
+            "overall": 7.800000000000001,
+            "songQuality": 6,
+            "voterName": "Snir",
+            "staging": 9,
+            "voterIsAdmin": true,
+            "vocalQuality": 9
+          },
+          "1747162813056": {
+            "voterName": "Orit Baba",
+            "overall": 4.4,
+            "vocalQuality": 2,
+            "staging": 10,
+            "songQuality": 3,
+            "updatedAt": "2025-05-13T19:19:14.820Z",
+            "voterIsAdmin": false
+          },
+          "1747162920503": {
+            "staging": 5,
+            "songQuality": 2,
+            "voterName": "omer❤️",
+            "overall": 3.4499999999999997,
+            "vocalQuality": 4,
+            "updatedAt": "2025-05-13T19:18:40.275Z",
+            "voterIsAdmin": false
+          },
+          "1747162986850": {
+            "updatedAt": "2025-05-13T19:19:03.536Z",
+            "staging": 6,
+            "vocalQuality": 5,
+            "overall": 3,
+            "voterName": "Noga 🦚",
+            "voterIsAdmin": false
+          },
+          "1747163001504": {
+            "staging": 5,
+            "vocalQuality": 4,
+            "overall": 3.85,
+            "voterIsAdmin": false,
+            "voterName": "Asaf",
+            "songQuality": 3,
+            "updatedAt": "2025-05-13T19:19:04.442Z"
+          },
+          "1747163362234": {
+            "staging": 5,
+            "voterName": "עדי",
+            "updatedAt": "2025-05-13T20:38:51.353Z",
+            "songQuality": 6,
+            "overall": 4.3500000000000005,
+            "vocalQuality": 2,
+            "voterIsAdmin": false
+          },
+          "1747163395872": {
+            "songQuality": 10,
+            "updatedAt": "2025-05-13T19:18:34.798Z",
+            "voterName": "roy",
+            "staging": 10,
+            "vocalQuality": 10,
+            "voterIsAdmin": false,
+            "overall": 10
+          },
+          "1747163401026": {
+            "voterName": "גלית",
+            "voterIsAdmin": false,
+            "overall": 5.15,
+            "vocalQuality": 4,
+            "updatedAt": "2025-05-13T19:18:46.056Z",
+            "songQuality": 5,
+            "staging": 7
+          },
+          "1747163416910": {
+            "updatedAt": "2025-05-13T19:23:32.450Z",
+            "staging": 5,
+            "vocalQuality": 2,
+            "overall": 3.1500000000000004,
+            "voterIsAdmin": false,
+            "voterName": "Yael",
+            "songQuality": 3
+          },
+          "1747163528937": {
+            "songQuality": 7,
+            "overall": 6.75,
+            "voterIsAdmin": false,
+            "staging": 6,
+            "updatedAt": "2025-05-13T19:17:19.065Z",
+            "vocalQuality": 7,
+            "voterName": "Amit"
+          },
+          "1747163771182": {
+            "vocalQuality": 6,
+            "voterIsAdmin": false,
+            "songQuality": 3,
+            "updatedAt": "2025-05-13T19:27:53.911Z",
+            "staging": 5,
+            "overall": 4.55,
+            "voterName": "Amit Michaely"
+          },
+          "1747163847050": {
+            "vocalQuality": 3,
+            "songQuality": 4,
+            "voterName": "Eleni Foureira",
+            "overall": 3.9,
+            "updatedAt": "2025-05-13T19:27:32.403Z",
+            "voterIsAdmin": false,
+            "staging": 5
+          },
+          "1747164087276": {
+            "vocalQuality": 7,
+            "staging": 4,
+            "updatedAt": "2025-05-13T19:26:25.369Z",
+            "overall": 5.85,
+            "songQuality": 6,
+            "voterIsAdmin": false,
+            "voterName": "Dgancha cha cha"
+          },
+          "1747164136177": {
+            "overall": 7.950000000000001,
+            "vocalQuality": 9,
+            "voterIsAdmin": false,
+            "voterName": "Ahinoam ",
+            "staging": 8,
+            "updatedAt": "2025-05-13T19:24:18.752Z",
+            "songQuality": 7
+          }
+        },
+        "3": {
+          "1747148411686": {
+            "vocalQuality": 9,
+            "voterIsAdmin": true,
+            "overall": 7.300000000000001,
+            "staging": 7,
+            "songQuality": 6,
+            "updatedAt": "2025-05-13T19:27:29.991Z",
+            "voterName": "Snir"
+          },
+          "1747162813056": {
+            "songQuality": 2,
+            "voterName": "Orit Baba",
+            "voterIsAdmin": false,
+            "vocalQuality": 6,
+            "overall": 4.1499999999999995,
+            "staging": 5,
+            "updatedAt": "2025-05-13T19:24:13.538Z"
+          },
+          "1747162920503": {
+            "overall": 3.15,
+            "songQuality": 4,
+            "staging": 2,
+            "voterIsAdmin": false,
+            "voterName": "omer❤️",
+            "updatedAt": "2025-05-13T19:22:21.382Z",
+            "vocalQuality": 3
+          },
+          "1747162986850": {
+            "voterName": "Noga 🦚",
+            "overall": 2.2,
+            "voterIsAdmin": false,
+            "vocalQuality": 4,
+            "updatedAt": "2025-05-13T19:22:23.616Z",
+            "songQuality": 3
+          },
+          "1747163001504": {
+            "updatedAt": "2025-05-13T19:24:32.535Z",
+            "songQuality": 8,
+            "voterIsAdmin": false,
+            "overall": 6.65,
+            "staging": 4,
+            "voterName": "Asaf",
+            "vocalQuality": 7
+          },
+          "1747163362234": {
+            "overall": 0.7,
+            "vocalQuality": 2,
+            "updatedAt": "2025-05-13T19:38:01.983Z",
+            "voterName": "עדי",
+            "voterIsAdmin": false
+          },
+          "1747163401026": {
+            "voterName": "גלית",
+            "updatedAt": "2025-05-13T19:23:21.481Z",
+            "vocalQuality": 4,
+            "songQuality": 5,
+            "voterIsAdmin": false,
+            "staging": 5,
+            "overall": 4.65
+          },
+          "1747163416910": {
+            "vocalQuality": 4,
+            "overall": 4.65,
+            "updatedAt": "2025-05-13T19:28:46.457Z",
+            "songQuality": 5,
+            "voterName": "Yael",
+            "staging": 5,
+            "voterIsAdmin": false
+          },
+          "1747163528937": {
+            "voterName": "Amit",
+            "overall": 5.65,
+            "voterIsAdmin": false,
+            "staging": 5,
+            "vocalQuality": 8,
+            "songQuality": 4,
+            "updatedAt": "2025-05-13T19:23:19.716Z"
+          },
+          "1747163771182": {
+            "staging": 4,
+            "vocalQuality": 8,
+            "voterIsAdmin": false,
+            "overall": 6.2,
+            "updatedAt": "2025-05-13T19:23:09.153Z",
+            "voterName": "Amit Michaely",
+            "songQuality": 6
+          },
+          "1747163847050": {
+            "overall": 3.8999999999999995,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:28:25.387Z",
+            "staging": 4,
+            "songQuality": 2,
+            "vocalQuality": 6,
+            "voterName": "Eleni Foureira"
+          },
+          "1747164087276": {
+            "staging": 3,
+            "songQuality": 5,
+            "voterName": "Dgancha cha cha",
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:27:30.971Z",
+            "overall": 3.8,
+            "vocalQuality": 3
+          },
+          "1747164136177": {
+            "updatedAt": "2025-05-13T19:27:44.257Z",
+            "voterName": "Ahinoam ",
+            "songQuality": 5,
+            "overall": 5.25,
+            "staging": 6,
+            "vocalQuality": 5,
+            "voterIsAdmin": false
+          }
+        },
+        "4": {
+          "1747148411686": {
+            "songQuality": 6,
+            "voterName": "Snir",
+            "updatedAt": "2025-05-13T19:30:28.452Z",
+            "vocalQuality": 2,
+            "voterIsAdmin": true,
+            "staging": 7,
+            "overall": 4.8500000000000005
+          },
+          "1747162813056": {
+            "updatedAt": "2025-05-13T19:27:55.849Z",
+            "vocalQuality": 3,
+            "voterIsAdmin": false,
+            "songQuality": 2,
+            "voterName": "Orit Baba",
+            "staging": 8,
+            "overall": 3.8499999999999996
+          },
+          "1747162920503": {
+            "overall": 4.7,
+            "voterIsAdmin": false,
+            "songQuality": 5,
+            "staging": 8,
+            "vocalQuality": 2,
+            "voterName": "omer❤️",
+            "updatedAt": "2025-05-13T19:27:27.188Z"
+          },
+          "1747162986850": {
+            "overall": 2.3,
+            "voterName": "Noga 🦚",
+            "songQuality": 4,
+            "voterIsAdmin": false,
+            "vocalQuality": 2,
+            "updatedAt": "2025-05-13T19:26:12.745Z"
+          },
+          "1747163001504": {
+            "overall": 4.3,
+            "staging": 5,
+            "songQuality": 5,
+            "voterIsAdmin": false,
+            "vocalQuality": 3,
+            "updatedAt": "2025-05-13T19:28:16.634Z",
+            "voterName": "Asaf"
+          },
+          "1747163362234": {
+            "staging": 6,
+            "overall": 4.6000000000000005,
+            "vocalQuality": 2,
+            "voterName": "עדי",
+            "songQuality": 6,
+            "updatedAt": "2025-05-13T20:39:08.878Z",
+            "voterIsAdmin": false
+          },
+          "1747163395872": {
+            "voterName": "roy",
+            "updatedAt": "2025-05-13T19:27:10.466Z",
+            "songQuality": 7,
+            "overall": 6.1000000000000005,
+            "voterIsAdmin": false,
+            "staging": 9,
+            "vocalQuality": 3
+          },
+          "1747163401026": {
+            "updatedAt": "2025-05-13T19:27:31.737Z",
+            "voterName": "גלית",
+            "vocalQuality": 8,
+            "overall": 8,
+            "songQuality": 8,
+            "staging": 8,
+            "voterIsAdmin": false
+          },
+          "1747163416910": {
+            "overall": 5.9,
+            "updatedAt": "2025-05-13T19:28:56.221Z",
+            "voterName": "Yael",
+            "vocalQuality": 2,
+            "voterIsAdmin": false,
+            "songQuality": 8,
+            "staging": 8
+          },
+          "1747163528937": {
+            "songQuality": 10,
+            "voterName": "Amit",
+            "staging": 9,
+            "vocalQuality": 8,
+            "overall": 9.05,
+            "updatedAt": "2025-05-13T19:27:47.045Z",
+            "voterIsAdmin": false
+          },
+          "1747163771182": {
+            "voterIsAdmin": false,
+            "voterName": "Amit Michaely",
+            "songQuality": 7,
+            "updatedAt": "2025-05-13T19:27:42.304Z",
+            "overall": 5.000000000000001,
+            "vocalQuality": 2,
+            "staging": 6
+          },
+          "1747163847050": {
+            "voterName": "Eleni Foureira",
+            "voterIsAdmin": false,
+            "overall": 2.25,
+            "vocalQuality": 2,
+            "updatedAt": "2025-05-13T19:41:08.744Z",
+            "staging": 3,
+            "songQuality": 2
+          },
+          "1747164087276": {
+            "staging": 9,
+            "voterIsAdmin": false,
+            "vocalQuality": 6,
+            "overall": 7.55,
+            "voterName": "Dgancha cha cha",
+            "songQuality": 8,
+            "updatedAt": "2025-05-13T19:29:58.922Z"
+          },
+          "1747164136177": {
+            "voterIsAdmin": false,
+            "staging": 8,
+            "vocalQuality": 6,
+            "voterName": "Ahinoam ",
+            "songQuality": 8,
+            "overall": 7.3,
+            "updatedAt": "2025-05-13T19:31:36.860Z"
+          },
+          "1747164218191": {
+            "overall": 5.35,
+            "songQuality": 4,
+            "staging": 8,
+            "vocalQuality": 5,
+            "updatedAt": "2025-05-13T19:27:02.239Z",
+            "voterIsAdmin": false,
+            "voterName": "Aviv"
+          },
+          "1747165959970": {
+            "voterIsAdmin": false,
+            "overall": 2,
+            "vocalQuality": 2,
+            "songQuality": 2,
+            "staging": 2,
+            "updatedAt": "2025-05-13T19:54:14.903Z",
+            "voterName": "Benyahav"
+          }
+        },
+        "5": {
+          "1747148411686": {
+            "staging": 7,
+            "updatedAt": "2025-05-13T19:39:13.829Z",
+            "voterName": "Snir",
+            "overall": 8.55,
+            "vocalQuality": 8,
+            "songQuality": 10,
+            "voterIsAdmin": true
+          },
+          "1747162813056": {
+            "voterName": "Orit Baba",
+            "updatedAt": "2025-05-13T19:39:52.497Z",
+            "songQuality": 6,
+            "vocalQuality": 4,
+            "staging": 4,
+            "voterIsAdmin": false,
+            "overall": 4.800000000000001
+          },
+          "1747162920503": {
+            "songQuality": 5,
+            "vocalQuality": 4,
+            "voterIsAdmin": false,
+            "staging": 2,
+            "voterName": "omer❤️",
+            "updatedAt": "2025-05-13T19:40:06.171Z",
+            "overall": 3.9
+          },
+          "1747162986850": {
+            "staging": 2,
+            "songQuality": 8,
+            "voterName": "Noga 🦚",
+            "updatedAt": "2025-05-13T19:39:02.052Z",
+            "voterIsAdmin": false,
+            "overall": 6.85,
+            "vocalQuality": 9
+          },
+          "1747163001504": {
+            "voterName": "Asaf",
+            "overall": 8.3,
+            "staging": 6,
+            "voterIsAdmin": false,
+            "songQuality": 10,
+            "updatedAt": "2025-05-13T19:40:04.379Z",
+            "vocalQuality": 8
+          },
+          "1747163362234": {
+            "staging": 4,
+            "voterName": "עדי",
+            "songQuality": 4,
+            "updatedAt": "2025-05-13T19:40:09.126Z",
+            "overall": 3.65,
+            "voterIsAdmin": false,
+            "vocalQuality": 3
+          },
+          "1747163395872": {
+            "overall": 7,
+            "voterIsAdmin": false,
+            "voterName": "roy",
+            "songQuality": 7,
+            "staging": 7,
+            "vocalQuality": 7,
+            "updatedAt": "2025-05-13T19:38:25.372Z"
+          },
+          "1747163401026": {
+            "staging": 5,
+            "overall": 5.35,
+            "voterName": "גלית",
+            "songQuality": 5,
+            "updatedAt": "2025-05-13T19:39:45.119Z",
+            "vocalQuality": 6,
+            "voterIsAdmin": false
+          },
+          "1747163416910": {
+            "songQuality": 4,
+            "updatedAt": "2025-05-13T19:38:24.059Z",
+            "overall": 2.3,
+            "voterName": "Yael",
+            "voterIsAdmin": false,
+            "vocalQuality": 3
+          },
+          "1747163528937": {
+            "overall": 5.1,
+            "songQuality": 5,
+            "voterIsAdmin": false,
+            "staging": 4,
+            "updatedAt": "2025-05-13T19:37:50.296Z",
+            "vocalQuality": 6,
+            "voterName": "Amit"
+          },
+          "1747163771182": {
+            "vocalQuality": 9,
+            "updatedAt": "2025-05-13T19:41:08.288Z",
+            "songQuality": 9,
+            "voterIsAdmin": false,
+            "staging": 10,
+            "voterName": "Amit Michaely",
+            "overall": 9.25
+          },
+          "1747163847050": {
+            "updatedAt": "2025-05-13T20:18:28.501Z",
+            "voterName": "Eleni Foureira",
+            "staging": 5,
+            "songQuality": 4,
+            "overall": 4.6,
+            "voterIsAdmin": false,
+            "vocalQuality": 5
+          },
+          "1747164087276": {
+            "vocalQuality": 7,
+            "voterName": "Dgancha cha cha",
+            "staging": 4,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:44:44.564Z",
+            "overall": 6.25,
+            "songQuality": 7
+          },
+          "1747164136177": {
+            "updatedAt": "2025-05-13T19:39:57.826Z",
+            "songQuality": 10,
+            "voterName": "Ahinoam ",
+            "voterIsAdmin": false,
+            "staging": 7,
+            "vocalQuality": 9,
+            "overall": 8.9
+          },
+          "1747164218191": {
+            "overall": 9.05,
+            "voterName": "Aviv",
+            "vocalQuality": 8,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:38:53.367Z",
+            "staging": 9,
+            "songQuality": 10
+          }
+        },
+        "6": {
+          "1747148411686": {
+            "voterName": "Snir",
+            "staging": 9,
+            "voterIsAdmin": true,
+            "updatedAt": "2025-05-13T19:42:48.540Z",
+            "songQuality": 10,
+            "vocalQuality": 8,
+            "overall": 9.05
+          },
+          "1747162813056": {
+            "staging": 8,
+            "vocalQuality": 6,
+            "voterIsAdmin": false,
+            "voterName": "Orit Baba",
+            "updatedAt": "2025-05-13T19:44:00.646Z",
+            "songQuality": 6,
+            "overall": 6.5
+          },
+          "1747162920503": {
+            "vocalQuality": 9,
+            "overall": 9.65,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:43:43.383Z",
+            "staging": 10,
+            "songQuality": 10,
+            "voterName": "omer❤️"
+          },
+          "1747162986850": {
+            "voterName": "Noga 🦚",
+            "overall": 8.1,
+            "updatedAt": "2025-05-13T19:43:53.198Z",
+            "voterIsAdmin": false,
+            "vocalQuality": 9,
+            "songQuality": 8,
+            "staging": 7
+          },
+          "1747163001504": {
+            "updatedAt": "2025-05-13T19:43:03.487Z",
+            "voterName": "Asaf",
+            "songQuality": 5,
+            "vocalQuality": 4,
+            "overall": 5.4,
+            "voterIsAdmin": false,
+            "staging": 8
+          },
+          "1747163362234": {
+            "voterName": "עדי",
+            "voterIsAdmin": false,
+            "vocalQuality": 4,
+            "overall": 4.5,
+            "songQuality": 4,
+            "staging": 6,
+            "updatedAt": "2025-05-13T19:44:11.490Z"
+          },
+          "1747163395872": {
+            "voterName": "roy",
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:44:27.253Z",
+            "songQuality": 9,
+            "overall": 9.25,
+            "staging": 10,
+            "vocalQuality": 9
+          },
+          "1747163401026": {
+            "voterName": "גלית",
+            "vocalQuality": 9,
+            "voterIsAdmin": false,
+            "staging": 8,
+            "updatedAt": "2025-05-13T19:44:40.463Z",
+            "songQuality": 9,
+            "overall": 8.75
+          },
+          "1747163416910": {
+            "updatedAt": "2025-05-13T19:44:36.223Z",
+            "overall": 4.65,
+            "staging": 8,
+            "songQuality": 4,
+            "voterIsAdmin": false,
+            "voterName": "Yael",
+            "vocalQuality": 3
+          },
+          "1747163528937": {
+            "voterIsAdmin": false,
+            "staging": 7,
+            "overall": 7.449999999999999,
+            "updatedAt": "2025-05-13T19:41:26.856Z",
+            "songQuality": 9,
+            "vocalQuality": 6,
+            "voterName": "Amit"
+          },
+          "1747163771182": {
+            "voterIsAdmin": false,
+            "songQuality": 10,
+            "overall": 9.3,
+            "vocalQuality": 8,
+            "voterName": "Amit Michaely",
+            "staging": 10,
+            "updatedAt": "2025-05-13T19:43:00.210Z"
+          },
+          "1747163847050": {
+            "songQuality": 9,
+            "overall": 9.6,
+            "voterName": "Eleni Foureira",
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:43:43.309Z",
+            "vocalQuality": 10,
+            "staging": 10
+          },
+          "1747164087276": {
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:44:25.502Z",
+            "songQuality": 9,
+            "staging": 9,
+            "overall": 9.35,
+            "vocalQuality": 10,
+            "voterName": "Dgancha cha cha"
+          },
+          "1747164136177": {
+            "voterIsAdmin": false,
+            "songQuality": 8,
+            "overall": 8.85,
+            "updatedAt": "2025-05-13T19:43:48.326Z",
+            "vocalQuality": 9,
+            "voterName": "Ahinoam ",
+            "staging": 10
+          },
+          "1747164218191": {
+            "vocalQuality": 5,
+            "overall": 7.050000000000001,
+            "staging": 10,
+            "voterName": "Aviv",
+            "songQuality": 7,
+            "updatedAt": "2025-05-13T19:43:31.394Z",
+            "voterIsAdmin": false
+          },
+          "1747165959970": {
+            "updatedAt": "2025-05-13T19:53:34.405Z",
+            "voterName": "Benyahav",
+            "songQuality": 7,
+            "voterIsAdmin": false,
+            "overall": 6.300000000000001,
+            "staging": 7,
+            "vocalQuality": 5
+          }
+        },
+        "7": {
+          "1747148411686": {
+            "overall": 2.75,
+            "updatedAt": "2025-05-13T19:46:23.511Z",
+            "songQuality": 3,
+            "staging": 2,
+            "voterName": "Snir",
+            "voterIsAdmin": true,
+            "vocalQuality": 3
+          },
+          "1747162813056": {
+            "staging": 3,
+            "voterIsAdmin": false,
+            "songQuality": 3,
+            "voterName": "Orit Baba",
+            "updatedAt": "2025-05-13T19:48:11.819Z",
+            "vocalQuality": 2,
+            "overall": 2.6500000000000004
+          },
+          "1747162920503": {
+            "updatedAt": "2025-05-13T19:47:58.749Z",
+            "songQuality": 4,
+            "voterIsAdmin": false,
+            "overall": 3.5,
+            "staging": 2,
+            "voterName": "omer❤️",
+            "vocalQuality": 4
+          },
+          "1747162986850": {
+            "updatedAt": "2025-05-13T19:47:36.476Z",
+            "voterName": "Noga 🦚",
+            "voterIsAdmin": false,
+            "songQuality": 7,
+            "vocalQuality": 10,
+            "overall": 5.95
+          },
+          "1747163001504": {
+            "updatedAt": "2025-05-13T19:48:47.696Z",
+            "staging": 4,
+            "voterName": "Asaf",
+            "vocalQuality": 10,
+            "voterIsAdmin": false,
+            "overall": 8.1,
+            "songQuality": 9
+          },
+          "1747163362234": {
+            "staging": 2,
+            "updatedAt": "2025-05-13T19:46:15.739Z",
+            "voterName": "עדי",
+            "songQuality": 2,
+            "overall": 2,
+            "vocalQuality": 2,
+            "voterIsAdmin": false
+          },
+          "1747163395872": {
+            "voterIsAdmin": false,
+            "voterName": "roy",
+            "updatedAt": "2025-05-13T19:45:26.201Z",
+            "songQuality": 10,
+            "vocalQuality": 9,
+            "overall": 9.15,
+            "staging": 8
+          },
+          "1747163401026": {
+            "vocalQuality": 5,
+            "overall": 4.35,
+            "songQuality": 4,
+            "staging": 4,
+            "updatedAt": "2025-05-13T19:46:59.833Z",
+            "voterName": "גלית",
+            "voterIsAdmin": false
+          },
+          "1747163416910": {
+            "voterIsAdmin": false,
+            "overall": 4.4,
+            "vocalQuality": 7,
+            "voterName": "Yael",
+            "staging": 3,
+            "songQuality": 3,
+            "updatedAt": "2025-05-13T19:46:39.910Z"
+          },
+          "1747163528937": {
+            "songQuality": 4,
+            "voterIsAdmin": false,
+            "overall": 5.4,
+            "staging": 4,
+            "vocalQuality": 8,
+            "voterName": "Amit",
+            "updatedAt": "2025-05-13T19:47:18.383Z"
+          },
+          "1747163771182": {
+            "voterName": "Amit Michaely",
+            "updatedAt": "2025-05-13T19:47:07.078Z",
+            "vocalQuality": 2,
+            "voterIsAdmin": false,
+            "staging": 1,
+            "overall": 0.6
+          },
+          "1747163847050": {
+            "voterName": "Eleni Foureira",
+            "updatedAt": "2025-05-13T19:48:15.012Z",
+            "voterIsAdmin": false,
+            "songQuality": 2,
+            "overall": 2.8999999999999995,
+            "vocalQuality": 6
+          },
+          "1747164087276": {
+            "updatedAt": "2025-05-13T19:48:36.677Z",
+            "vocalQuality": 6,
+            "voterName": "Dgancha cha cha",
+            "voterIsAdmin": false,
+            "staging": 1,
+            "songQuality": 2,
+            "overall": 3.1499999999999995
+          },
+          "1747164136177": {
+            "staging": 1,
+            "voterIsAdmin": false,
+            "vocalQuality": 2,
+            "overall": 1.35,
+            "voterName": "Ahinoam ",
+            "updatedAt": "2025-05-13T19:48:07.891Z",
+            "songQuality": 1
+          },
+          "1747164218191": {
+            "updatedAt": "2025-05-13T19:47:26.535Z",
+            "voterName": "Aviv",
+            "voterIsAdmin": false,
+            "staging": 1,
+            "vocalQuality": 4,
+            "songQuality": 3,
+            "overall": 2.85
+          },
+          "1747165959970": {
+            "staging": 3,
+            "updatedAt": "2025-05-13T19:53:20.774Z",
+            "voterName": "Benyahav",
+            "overall": 2.25,
+            "vocalQuality": 2,
+            "songQuality": 2,
+            "voterIsAdmin": false
+          }
+        },
+        "8": {
+          "1747148411686": {
+            "overall": 5.65,
+            "updatedAt": "2025-05-13T19:51:44.455Z",
+            "songQuality": 8,
+            "staging": 7,
+            "vocalQuality": 2,
+            "voterName": "Snir",
+            "voterIsAdmin": true
+          },
+          "1747162813056": {
+            "staging": 6,
+            "voterName": "Orit Baba",
+            "overall": 4.15,
+            "vocalQuality": 3,
+            "updatedAt": "2025-05-13T19:52:05.262Z",
+            "songQuality": 4,
+            "voterIsAdmin": false
+          },
+          "1747162920503": {
+            "vocalQuality": 2,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:52:13.314Z",
+            "overall": 3.55,
+            "staging": 5,
+            "voterName": "omer❤️",
+            "songQuality": 4
+          },
+          "1747162986850": {
+            "staging": 4,
+            "voterName": "Noga 🦚",
+            "songQuality": 8,
+            "overall": 4.9,
+            "vocalQuality": 2,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:51:37.496Z"
+          },
+          "1747163001504": {
+            "updatedAt": "2025-05-13T19:50:33.071Z",
+            "voterIsAdmin": false,
+            "voterName": "Asaf",
+            "vocalQuality": 2,
+            "songQuality": 6,
+            "overall": 4.3500000000000005,
+            "staging": 5
+          },
+          "1747163362234": {
+            "songQuality": 3,
+            "voterName": "עדי",
+            "vocalQuality": 3,
+            "staging": 5,
+            "updatedAt": "2025-05-13T19:56:09.367Z",
+            "overall": 3.5,
+            "voterIsAdmin": false
+          },
+          "1747163395872": {
+            "updatedAt": "2025-05-13T19:51:30.869Z",
+            "vocalQuality": 5,
+            "songQuality": 3,
+            "staging": 2,
+            "voterIsAdmin": false,
+            "overall": 3.45,
+            "voterName": "roy"
+          },
+          "1747163401026": {
+            "overall": 6.45,
+            "songQuality": 8,
+            "vocalQuality": 5,
+            "updatedAt": "2025-05-13T19:52:01.403Z",
+            "voterIsAdmin": false,
+            "voterName": "גלית",
+            "staging": 6
+          },
+          "1747163416910": {
+            "staging": 8,
+            "overall": 6.6,
+            "voterIsAdmin": false,
+            "songQuality": 8,
+            "voterName": "Yael",
+            "updatedAt": "2025-05-13T19:52:04.184Z",
+            "vocalQuality": 4
+          },
+          "1747163528937": {
+            "staging": 3,
+            "overall": 4.15,
+            "updatedAt": "2025-05-13T19:50:03.465Z",
+            "vocalQuality": 4,
+            "voterIsAdmin": false,
+            "voterName": "Amit",
+            "songQuality": 5
+          },
+          "1747163771182": {
+            "updatedAt": "2025-05-13T19:52:04.485Z",
+            "overall": 7.1499999999999995,
+            "staging": 10,
+            "vocalQuality": 3,
+            "voterName": "Amit Michaely",
+            "songQuality": 9,
+            "voterIsAdmin": false
+          },
+          "1747163847050": {
+            "vocalQuality": 3,
+            "updatedAt": "2025-05-13T19:52:38.481Z",
+            "voterIsAdmin": false,
+            "voterName": "Eleni Foureira",
+            "staging": 3,
+            "songQuality": 7,
+            "overall": 4.6
+          },
+          "1747164087276": {
+            "staging": 7,
+            "overall": 4.8500000000000005,
+            "songQuality": 6,
+            "voterIsAdmin": false,
+            "vocalQuality": 2,
+            "updatedAt": "2025-05-13T19:51:55.106Z",
+            "voterName": "Dgancha cha cha"
+          },
+          "1747164088708": {
+            "staging": 7,
+            "vocalQuality": 2,
+            "songQuality": 7,
+            "voterName": "Ahinoam",
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:53:17.755Z",
+            "overall": 5.250000000000001
+          },
+          "1747164136177": {
+            "overall": 5.500000000000001,
+            "updatedAt": "2025-05-13T19:50:59.253Z",
+            "voterIsAdmin": false,
+            "staging": 8,
+            "voterName": "Ahinoam ",
+            "vocalQuality": 2,
+            "songQuality": 7
+          },
+          "1747164218191": {
+            "vocalQuality": 6,
+            "staging": 4,
+            "voterName": "Aviv",
+            "updatedAt": "2025-05-13T19:52:33.742Z",
+            "voterIsAdmin": false,
+            "songQuality": 5,
+            "overall": 5.1
+          },
+          "1747165959970": {
+            "voterIsAdmin": false,
+            "voterName": "Benyahav",
+            "updatedAt": "2025-05-13T19:53:46.786Z",
+            "staging": 8,
+            "songQuality": 8,
+            "overall": 8,
+            "vocalQuality": 8
+          }
+        },
+        "9": {
+          "1747148411686": {
+            "songQuality": 8,
+            "vocalQuality": 10,
+            "voterName": "Snir",
+            "staging": 9,
+            "overall": 8.95,
+            "updatedAt": "2025-05-13T19:56:19.379Z",
+            "voterIsAdmin": true
+          },
+          "1747162813056": {
+            "voterName": "Orit Baba",
+            "voterIsAdmin": false,
+            "vocalQuality": 6,
+            "updatedAt": "2025-05-13T19:56:52.340Z",
+            "songQuality": 7,
+            "overall": 6.9,
+            "staging": 8
+          },
+          "1747162920503": {
+            "overall": 6.45,
+            "vocalQuality": 8,
+            "staging": 5,
+            "voterIsAdmin": false,
+            "voterName": "omer❤️",
+            "songQuality": 6,
+            "updatedAt": "2025-05-13T19:56:25.971Z"
+          },
+          "1747162986850": {
+            "updatedAt": "2025-05-13T19:55:59.909Z",
+            "voterIsAdmin": false,
+            "overall": 7.75,
+            "staging": 4,
+            "songQuality": 9,
+            "voterName": "Noga 🦚",
+            "vocalQuality": 9
+          },
+          "1747163001504": {
+            "voterIsAdmin": false,
+            "voterName": "Asaf",
+            "overall": 7.949999999999999,
+            "staging": 6,
+            "updatedAt": "2025-05-13T20:02:00.835Z",
+            "vocalQuality": 7,
+            "songQuality": 10
+          },
+          "1747163362234": {
+            "songQuality": 5,
+            "updatedAt": "2025-05-13T19:56:32.941Z",
+            "voterName": "עדי",
+            "staging": 4,
+            "vocalQuality": 2,
+            "voterIsAdmin": false,
+            "overall": 3.7
+          },
+          "1747163395872": {
+            "overall": 0.4,
+            "voterIsAdmin": false,
+            "songQuality": 2,
+            "updatedAt": "2025-05-13T19:55:03.828Z",
+            "voterName": "roy"
+          },
+          "1747163401026": {
+            "overall": 5.050000000000001,
+            "vocalQuality": 4,
+            "voterName": "גלית",
+            "updatedAt": "2025-05-13T19:55:38.807Z",
+            "voterIsAdmin": false,
+            "staging": 5,
+            "songQuality": 6
+          },
+          "1747163416910": {
+            "vocalQuality": 2,
+            "overall": 4.8500000000000005,
+            "updatedAt": "2025-05-13T19:56:29.061Z",
+            "voterName": "Yael",
+            "songQuality": 6,
+            "staging": 7,
+            "voterIsAdmin": false
+          },
+          "1747163528937": {
+            "staging": 4,
+            "voterName": "Amit",
+            "vocalQuality": 2,
+            "updatedAt": "2025-05-13T19:54:19.085Z",
+            "overall": 4.1000000000000005,
+            "voterIsAdmin": false,
+            "songQuality": 6
+          },
+          "1747163771182": {
+            "staging": 9,
+            "overall": 9.35,
+            "updatedAt": "2025-05-13T19:56:42.135Z",
+            "songQuality": 9,
+            "voterIsAdmin": false,
+            "voterName": "Amit Michaely",
+            "vocalQuality": 10
+          },
+          "1747163847050": {
+            "vocalQuality": 5,
+            "voterIsAdmin": false,
+            "songQuality": 6,
+            "updatedAt": "2025-05-13T19:56:38.019Z",
+            "staging": 7,
+            "voterName": "Eleni Foureira",
+            "overall": 5.9
+          },
+          "1747164087276": {
+            "updatedAt": "2025-05-13T19:55:23.898Z",
+            "vocalQuality": 7,
+            "voterIsAdmin": false,
+            "voterName": "Dgancha cha cha",
+            "overall": 5.699999999999999,
+            "staging": 5,
+            "songQuality": 5
+          },
+          "1747164088708": {
+            "vocalQuality": 9,
+            "voterName": "Ahinoam",
+            "overall": 7.950000000000001,
+            "staging": 8,
+            "voterIsAdmin": false,
+            "songQuality": 7,
+            "updatedAt": "2025-05-13T19:56:27.071Z"
+          },
+          "1747164218191": {
+            "voterIsAdmin": false,
+            "overall": 7.300000000000001,
+            "staging": 7,
+            "vocalQuality": 9,
+            "updatedAt": "2025-05-13T19:56:13.268Z",
+            "songQuality": 6,
+            "voterName": "Aviv"
+          }
+        },
+        "10": {
+          "1747148411686": {
+            "voterIsAdmin": true,
+            "voterName": "Snir",
+            "vocalQuality": 8,
+            "updatedAt": "2025-05-13T20:08:34.274Z",
+            "staging": 5,
+            "songQuality": 7,
+            "overall": 6.8500000000000005
+          },
+          "1747162813056": {
+            "staging": 2,
+            "overall": 1.6,
+            "songQuality": 1,
+            "voterIsAdmin": false,
+            "vocalQuality": 2,
+            "voterName": "Orit Baba",
+            "updatedAt": "2025-05-13T20:09:13.817Z"
+          },
+          "1747162920503": {
+            "vocalQuality": 3,
+            "overall": 2.75,
+            "voterName": "omer❤️",
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T20:09:24.591Z",
+            "staging": 2,
+            "songQuality": 3
+          },
+          "1747163001504": {
+            "overall": 6.199999999999999,
+            "updatedAt": "2025-05-13T20:08:59.835Z",
+            "staging": 7,
+            "vocalQuality": 7,
+            "songQuality": 5,
+            "voterIsAdmin": false,
+            "voterName": "Asaf"
+          },
+          "1747163362234": {
+            "voterName": "עדי",
+            "staging": 5,
+            "overall": 3.55,
+            "updatedAt": "2025-05-13T20:09:00.396Z",
+            "voterIsAdmin": false,
+            "vocalQuality": 2,
+            "songQuality": 4
+          },
+          "1747163395872": {
+            "updatedAt": "2025-05-13T20:08:41.399Z",
+            "vocalQuality": 1,
+            "overall": 1.5500000000000003,
+            "voterIsAdmin": false,
+            "voterName": "roy",
+            "songQuality": 3
+          },
+          "1747163401026": {
+            "voterIsAdmin": false,
+            "staging": 7,
+            "vocalQuality": 7,
+            "overall": 7.799999999999999,
+            "voterName": "גלית",
+            "updatedAt": "2025-05-13T20:07:14.339Z",
+            "songQuality": 9
+          },
+          "1747163416910": {
+            "voterIsAdmin": false,
+            "songQuality": 2,
+            "overall": 2.3499999999999996,
+            "updatedAt": "2025-05-13T20:20:45.691Z",
+            "vocalQuality": 3,
+            "voterName": "Yael",
+            "staging": 2
+          },
+          "1747163771182": {
+            "overall": 4.449999999999999,
+            "voterIsAdmin": false,
+            "voterName": "Amit Michaely",
+            "updatedAt": "2025-05-13T20:09:56.963Z",
+            "vocalQuality": 6,
+            "staging": 3,
+            "songQuality": 4
+          },
+          "1747163847050": {
+            "overall": 4.9,
+            "staging": 4,
+            "vocalQuality": 2,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T20:12:02.860Z",
+            "songQuality": 8,
+            "voterName": "Eleni Foureira"
+          },
+          "1747164087276": {
+            "overall": 4.8,
+            "voterName": "Dgancha cha cha",
+            "staging": 7,
+            "voterIsAdmin": false,
+            "songQuality": 5,
+            "updatedAt": "2025-05-13T20:07:23.793Z",
+            "vocalQuality": 3
+          },
+          "1747164088708": {
+            "voterName": "Ahinoam",
+            "overall": 6.949999999999999,
+            "voterIsAdmin": false,
+            "staging": 5,
+            "updatedAt": "2025-05-13T20:08:16.861Z",
+            "vocalQuality": 6,
+            "songQuality": 9
+          },
+          "1747164218191": {
+            "overall": 5.35,
+            "songQuality": 5,
+            "updatedAt": "2025-05-13T20:08:43.519Z",
+            "vocalQuality": 6,
+            "staging": 5,
+            "voterIsAdmin": false,
+            "voterName": "Aviv"
+          }
+        },
+        "11": {
+          "1747148411686": {
+            "voterName": "Snir",
+            "songQuality": 3,
+            "updatedAt": "2025-05-13T20:13:18.693Z",
+            "overall": 2.4000000000000004,
+            "vocalQuality": 2,
+            "staging": 2,
+            "voterIsAdmin": true
+          },
+          "1747162813056": {
+            "overall": 4.15,
+            "staging": 6,
+            "voterIsAdmin": false,
+            "songQuality": 4,
+            "vocalQuality": 3,
+            "updatedAt": "2025-05-13T20:12:44.413Z",
+            "voterName": "Orit Baba"
+          },
+          "1747162920503": {
+            "staging": 3,
+            "voterName": "omer❤️",
+            "vocalQuality": 6,
+            "overall": 5.25,
+            "updatedAt": "2025-05-13T20:13:11.068Z",
+            "songQuality": 6,
+            "voterIsAdmin": false
+          },
+          "1747162986850": {
+            "songQuality": 7,
+            "voterIsAdmin": false,
+            "voterName": "Noga 🦚",
+            "staging": 7,
+            "overall": 7.700000000000001,
+            "updatedAt": "2025-05-13T20:12:31.232Z",
+            "vocalQuality": 9
+          },
+          "1747163001504": {
+            "songQuality": 8,
+            "updatedAt": "2025-05-13T20:11:33.426Z",
+            "vocalQuality": 5,
+            "voterIsAdmin": false,
+            "overall": 6.2,
+            "voterName": "Asaf",
+            "staging": 5
+          },
+          "1747163362234": {
+            "staging": 4,
+            "voterName": "עדי",
+            "voterIsAdmin": false,
+            "overall": 5.85,
+            "songQuality": 6,
+            "updatedAt": "2025-05-13T20:13:37.203Z",
+            "vocalQuality": 7
+          },
+          "1747163395872": {
+            "songQuality": 7,
+            "vocalQuality": 2,
+            "overall": 4.25,
+            "voterIsAdmin": false,
+            "staging": 3,
+            "updatedAt": "2025-05-13T20:13:17.636Z",
+            "voterName": "roy"
+          },
+          "1747163401026": {
+            "voterIsAdmin": false,
+            "overall": 8.75,
+            "songQuality": 9,
+            "voterName": "גלית",
+            "updatedAt": "2025-05-13T20:12:30.285Z",
+            "vocalQuality": 9,
+            "staging": 8
+          },
+          "1747163416910": {
+            "overall": 6.35,
+            "staging": 7,
+            "vocalQuality": 4,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T20:20:58.802Z",
+            "voterName": "Yael",
+            "songQuality": 8
+          },
+          "1747163771182": {
+            "staging": 10,
+            "updatedAt": "2025-05-13T20:12:52.197Z",
+            "overall": 7.5,
+            "vocalQuality": 4,
+            "songQuality": 9,
+            "voterName": "Amit Michaely",
+            "voterIsAdmin": false
+          },
+          "1747164087276": {
+            "voterName": "Dgancha cha cha",
+            "vocalQuality": 7,
+            "overall": 7.4,
+            "updatedAt": "2025-05-13T20:12:26.581Z",
+            "songQuality": 8,
+            "staging": 7,
+            "voterIsAdmin": false
+          },
+          "1747164088708": {
+            "voterIsAdmin": false,
+            "overall": 1.1,
+            "updatedAt": "2025-05-13T20:11:16.431Z",
+            "voterName": "Ahinoam",
+            "vocalQuality": 2,
+            "songQuality": 1
+          },
+          "1747164218191": {
+            "overall": 2.6500000000000004,
+            "songQuality": 3,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T20:12:39.481Z",
+            "vocalQuality": 2,
+            "staging": 3,
+            "voterName": "Aviv"
+          }
+        },
+        "12": {
+          "1747148411686": {
+            "voterName": "Snir",
+            "overall": 9.2,
+            "updatedAt": "2025-05-13T20:16:41.503Z",
+            "songQuality": 8,
+            "vocalQuality": 10,
+            "voterIsAdmin": true,
+            "staging": 10
+          },
+          "1747162813056": {
+            "staging": 6,
+            "voterName": "Orit Baba",
+            "vocalQuality": 4,
+            "overall": 4.9,
+            "updatedAt": "2025-05-13T20:22:22.190Z",
+            "songQuality": 5,
+            "voterIsAdmin": false
+          },
+          "1747162920503": {
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T20:17:38.635Z",
+            "vocalQuality": 3,
+            "songQuality": 2,
+            "overall": 2.0999999999999996,
+            "staging": 1,
+            "voterName": "omer❤️"
+          },
+          "1747162986850": {
+            "vocalQuality": 8,
+            "voterName": "Noga 🦚",
+            "staging": 3,
+            "voterIsAdmin": false,
+            "overall": 5.95,
+            "updatedAt": "2025-05-13T20:17:00.772Z",
+            "songQuality": 6
+          },
+          "1747163001504": {
+            "voterIsAdmin": false,
+            "voterName": "Asaf",
+            "vocalQuality": 10,
+            "updatedAt": "2025-05-13T20:17:46.854Z",
+            "songQuality": 8,
+            "staging": 7,
+            "overall": 8.45
+          },
+          "1747163362234": {
+            "voterName": "עדי",
+            "staging": 8,
+            "vocalQuality": 9,
+            "voterIsAdmin": false,
+            "songQuality": 10,
+            "overall": 9.15,
+            "updatedAt": "2025-05-13T20:18:14.372Z"
+          },
+          "1747163395872": {
+            "voterName": "roy",
+            "staging": 10,
+            "updatedAt": "2025-05-13T20:22:03.822Z",
+            "voterIsAdmin": false,
+            "songQuality": 9,
+            "vocalQuality": 10,
+            "overall": 9.6
+          },
+          "1747163401026": {
+            "updatedAt": "2025-05-13T20:17:19.663Z",
+            "overall": 10,
+            "staging": 10,
+            "vocalQuality": 10,
+            "voterIsAdmin": false,
+            "voterName": "גלית",
+            "songQuality": 10
+          },
+          "1747163416910": {
+            "staging": 7,
+            "vocalQuality": 8,
+            "updatedAt": "2025-05-13T20:22:08.492Z",
+            "voterIsAdmin": false,
+            "songQuality": 7,
+            "voterName": "Yael",
+            "overall": 7.3500000000000005
+          },
+          "1747163771182": {
+            "songQuality": 5,
+            "voterIsAdmin": false,
+            "voterName": "Amit Michaely",
+            "overall": 5.8,
+            "staging": 4,
+            "updatedAt": "2025-05-13T20:17:26.244Z",
+            "vocalQuality": 8
+          },
+          "1747163847050": {
+            "songQuality": 10,
+            "vocalQuality": 10,
+            "voterIsAdmin": false,
+            "staging": 10,
+            "updatedAt": "2025-05-13T20:26:10.278Z",
+            "voterName": "Eleni Foureira",
+            "overall": 10
+          },
+          "1747164087276": {
+            "staging": 9,
+            "voterName": "Dgancha cha cha",
+            "vocalQuality": 10,
+            "updatedAt": "2025-05-13T20:16:56.710Z",
+            "songQuality": 10,
+            "overall": 9.75,
+            "voterIsAdmin": false
+          },
+          "1747164088708": {
+            "songQuality": 10,
+            "voterName": "Ahinoam",
+            "vocalQuality": 10,
+            "updatedAt": "2025-05-13T20:16:41.845Z",
+            "overall": 9.5,
+            "voterIsAdmin": false,
+            "staging": 8
+          },
+          "1747164218191": {
+            "voterIsAdmin": false,
+            "voterName": "Aviv",
+            "vocalQuality": 8,
+            "updatedAt": "2025-05-13T20:19:26.981Z",
+            "overall": 8,
+            "staging": 8,
+            "songQuality": 8
+          }
+        },
+        "13": {
+          "1747148411686": {
+            "staging": 2,
+            "vocalQuality": 2,
+            "overall": 2,
+            "updatedAt": "2025-05-13T20:20:20.593Z",
+            "songQuality": 2,
+            "voterIsAdmin": true,
+            "voterName": "Snir"
+          },
+          "1747162813056": {
+            "updatedAt": "2025-05-13T20:22:32.474Z",
+            "voterName": "Orit Baba",
+            "overall": 4.45,
+            "voterIsAdmin": false,
+            "vocalQuality": 3,
+            "songQuality": 6,
+            "staging": 4
+          },
+          "1747162920503": {
+            "songQuality": 8,
+            "voterIsAdmin": false,
+            "voterName": "omer❤️",
+            "overall": 6.9,
+            "updatedAt": "2025-05-13T20:21:20.007Z",
+            "staging": 5,
+            "vocalQuality": 7
+          },
+          "1747162986850": {
+            "staging": 7,
+            "voterName": "Noga 🦚",
+            "overall": 8.1,
+            "updatedAt": "2025-05-13T20:20:58.673Z",
+            "songQuality": 8,
+            "vocalQuality": 9,
+            "voterIsAdmin": false
+          },
+          "1747163001504": {
+            "voterName": "Asaf",
+            "staging": 4,
+            "songQuality": 7,
+            "updatedAt": "2025-05-13T20:21:28.709Z",
+            "voterIsAdmin": false,
+            "vocalQuality": 5,
+            "overall": 5.550000000000001
+          },
+          "1747163362234": {
+            "songQuality": 7,
+            "updatedAt": "2025-05-13T20:39:55.171Z",
+            "vocalQuality": 3,
+            "voterIsAdmin": false,
+            "overall": 6.3500000000000005,
+            "voterName": "עדי",
+            "staging": 10
+          },
+          "1747163395872": {
+            "overall": 4.95,
+            "voterName": "roy",
+            "songQuality": 7,
+            "staging": 3,
+            "vocalQuality": 4,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T20:22:12.434Z"
+          },
+          "1747163401026": {
+            "voterIsAdmin": false,
+            "songQuality": 7,
+            "staging": 3,
+            "updatedAt": "2025-05-13T20:21:49.822Z",
+            "overall": 5.300000000000001,
+            "vocalQuality": 5,
+            "voterName": "גלית"
+          },
+          "1747163416910": {
+            "voterName": "Yael",
+            "overall": 6.05,
+            "staging": 3,
+            "songQuality": 8,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T20:22:21.785Z",
+            "vocalQuality": 6
+          },
+          "1747163771182": {
+            "voterName": "Amit Michaely",
+            "updatedAt": "2025-05-13T20:21:10.650Z",
+            "voterIsAdmin": false,
+            "vocalQuality": 9,
+            "overall": 8.6,
+            "staging": 9,
+            "songQuality": 8
+          },
+          "1747163847050": {
+            "voterName": "Eleni Foureira",
+            "songQuality": 3,
+            "staging": 2,
+            "updatedAt": "2025-05-13T20:27:29.415Z",
+            "vocalQuality": 6,
+            "overall": 3.8,
+            "voterIsAdmin": false
+          },
+          "1747164087276": {
+            "overall": 5.95,
+            "staging": 4,
+            "songQuality": 8,
+            "vocalQuality": 5,
+            "voterName": "Dgancha cha cha",
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T20:20:43.475Z"
+          },
+          "1747164088708": {
+            "updatedAt": "2025-05-13T20:20:33.605Z",
+            "staging": 2,
+            "songQuality": 3,
+            "voterIsAdmin": false,
+            "voterName": "Ahinoam",
+            "overall": 2.75,
+            "vocalQuality": 3
+          },
+          "1747164218191": {
+            "updatedAt": "2025-05-13T20:22:25.938Z",
+            "staging": 2,
+            "overall": 3.85,
+            "voterName": "Aviv",
+            "songQuality": 4,
+            "voterIsAdmin": false,
+            "vocalQuality": 5
+          },
+          "1747165959970": {
+            "voterName": "Benyahav",
+            "overall": 2,
+            "vocalQuality": 2,
+            "songQuality": 2,
+            "staging": 2,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T19:56:09.647Z"
+          }
+        },
+        "14": {
+          "1747148411686": {
+            "overall": 5.8,
+            "voterName": "Snir",
+            "vocalQuality": 6,
+            "voterIsAdmin": true,
+            "staging": 10,
+            "songQuality": 3,
+            "updatedAt": "2025-05-13T20:28:52.739Z"
+          },
+          "1747162813056": {
+            "updatedAt": "2025-05-13T20:26:05.419Z",
+            "overall": 5.35,
+            "vocalQuality": 6,
+            "voterName": "Orit Baba",
+            "voterIsAdmin": false,
+            "songQuality": 5,
+            "staging": 5
+          },
+          "1747162920503": {
+            "vocalQuality": 5,
+            "updatedAt": "2025-05-13T20:25:34.157Z",
+            "overall": 4.95,
+            "staging": 8,
+            "songQuality": 3,
+            "voterName": "omer❤️",
+            "voterIsAdmin": false
+          },
+          "1747162986850": {
+            "overall": 0.35,
+            "voterName": "Noga 🦚",
+            "voterIsAdmin": false,
+            "vocalQuality": 2,
+            "updatedAt": "2025-05-13T20:25:02.687Z"
+          },
+          "1747163001504": {
+            "overall": 1.4,
+            "updatedAt": "2025-05-13T20:25:09.276Z",
+            "vocalQuality": 1,
+            "staging": 1,
+            "voterIsAdmin": false,
+            "voterName": "Asaf",
+            "songQuality": 2
+          },
+          "1747163362234": {
+            "vocalQuality": 3,
+            "updatedAt": "2025-05-13T20:25:58.648Z",
+            "voterName": "עדי",
+            "songQuality": 3,
+            "staging": 7,
+            "overall": 4,
+            "voterIsAdmin": false
+          },
+          "1747163395872": {
+            "overall": 2.8,
+            "vocalQuality": 2,
+            "voterName": "roy",
+            "staging": 2,
+            "songQuality": 4,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T20:25:57.455Z"
+          },
+          "1747163401026": {
+            "songQuality": 5,
+            "vocalQuality": 4,
+            "voterIsAdmin": false,
+            "voterName": "גלית",
+            "staging": 4,
+            "updatedAt": "2025-05-13T20:25:19.167Z",
+            "overall": 4.4
+          },
+          "1747163416910": {
+            "vocalQuality": 7,
+            "voterName": "Yael",
+            "overall": 6.35,
+            "staging": 6,
+            "updatedAt": "2025-05-13T20:26:18.414Z",
+            "voterIsAdmin": false,
+            "songQuality": 6
+          },
+          "1747163771182": {
+            "vocalQuality": 6,
+            "voterIsAdmin": false,
+            "voterName": "Amit Michaely",
+            "overall": 4.1,
+            "updatedAt": "2025-05-13T20:25:46.226Z",
+            "staging": 8
+          },
+          "1747163847050": {
+            "vocalQuality": 9,
+            "updatedAt": "2025-05-13T20:35:29.672Z",
+            "staging": 2,
+            "overall": 4.05,
+            "voterName": "Eleni Foureira",
+            "voterIsAdmin": false,
+            "songQuality": 1
+          },
+          "1747164087276": {
+            "voterIsAdmin": false,
+            "songQuality": 3,
+            "voterName": "Dgancha cha cha",
+            "vocalQuality": 5,
+            "staging": 4,
+            "updatedAt": "2025-05-13T20:24:17.739Z",
+            "overall": 3.95
+          },
+          "1747164088708": {
+            "voterIsAdmin": false,
+            "overall": 2.9499999999999997,
+            "staging": 2,
+            "vocalQuality": 8,
+            "updatedAt": "2025-05-13T20:25:15.608Z",
+            "voterName": "Ahinoam"
+          },
+          "1747164218191": {
+            "updatedAt": "2025-05-13T20:25:30.216Z",
+            "staging": 6,
+            "vocalQuality": 3,
+            "songQuality": 3,
+            "voterIsAdmin": false,
+            "overall": 3.75,
+            "voterName": "Aviv"
+          }
+        },
+        "15": {
+          "1747148411686": {
+            "vocalQuality": 6,
+            "voterIsAdmin": true,
+            "staging": 7,
+            "overall": 6.65,
+            "updatedAt": "2025-05-13T20:35:22.588Z",
+            "voterName": "Snir",
+            "songQuality": 7
+          },
+          "1747162813056": {
+            "updatedAt": "2025-05-13T20:34:02.081Z",
+            "vocalQuality": 5,
+            "voterName": "Orit Baba",
+            "staging": 6,
+            "overall": 6.050000000000001,
+            "voterIsAdmin": false,
+            "songQuality": 7
+          },
+          "1747162920503": {
+            "overall": 4,
+            "songQuality": 3,
+            "staging": 7,
+            "updatedAt": "2025-05-13T20:34:26.234Z",
+            "voterIsAdmin": false,
+            "vocalQuality": 3,
+            "voterName": "omer❤️"
+          },
+          "1747163362234": {
+            "vocalQuality": 5,
+            "overall": 5.25,
+            "voterIsAdmin": false,
+            "songQuality": 5,
+            "voterName": "עדי",
+            "updatedAt": "2025-05-13T20:37:21.693Z",
+            "staging": 6
+          },
+          "1747163395872": {
+            "updatedAt": "2025-05-13T20:32:24.808Z",
+            "voterIsAdmin": false,
+            "vocalQuality": 7,
+            "songQuality": 8,
+            "voterName": "roy",
+            "staging": 6,
+            "overall": 7.15
+          },
+          "1747163401026": {
+            "voterName": "גלית",
+            "voterIsAdmin": false,
+            "vocalQuality": 6,
+            "songQuality": 7,
+            "updatedAt": "2025-05-13T20:34:03.184Z",
+            "overall": 6.4,
+            "staging": 6
+          },
+          "1747163416910": {
+            "voterIsAdmin": false,
+            "songQuality": 5,
+            "staging": 7,
+            "updatedAt": "2025-05-13T20:34:49.481Z",
+            "vocalQuality": 6,
+            "overall": 5.85,
+            "voterName": "Yael"
+          },
+          "1747163771182": {
+            "voterIsAdmin": false,
+            "songQuality": 2,
+            "updatedAt": "2025-05-13T20:34:59.707Z",
+            "staging": 6,
+            "vocalQuality": 4,
+            "voterName": "Amit Michaely",
+            "overall": 3.6999999999999997
+          },
+          "1747163847050": {
+            "overall": 5.2,
+            "vocalQuality": 4,
+            "songQuality": 7,
+            "voterIsAdmin": false,
+            "voterName": "Eleni Foureira",
+            "staging": 4,
+            "updatedAt": "2025-05-13T20:37:07.943Z"
+          },
+          "1747164087276": {
+            "updatedAt": "2025-05-13T20:33:50.814Z",
+            "staging": 9,
+            "overall": 6.800000000000001,
+            "voterIsAdmin": false,
+            "songQuality": 7,
+            "voterName": "Dgancha cha cha",
+            "vocalQuality": 5
+          },
+          "1747164088708": {
+            "updatedAt": "2025-05-13T20:36:50.144Z",
+            "songQuality": 5,
+            "staging": 7,
+            "overall": 5.85,
+            "vocalQuality": 6,
+            "voterIsAdmin": false,
+            "voterName": "Ahinoam"
+          },
+          "1747164218191": {
+            "voterName": "Aviv",
+            "songQuality": 6,
+            "staging": 8,
+            "voterIsAdmin": false,
+            "updatedAt": "2025-05-13T20:33:21.785Z",
+            "overall": 7.550000000000001,
+            "vocalQuality": 9
+          }
+        }
+      }
+    },
+    "euro2025sf2": {
+      "createdAt": "2025-05-14T10:47:08.754Z",
+      "name": "Eurovision 2025 Semi Final 2",
+      "contestants": {
+        "1": {
+          "name": "Go-Jo – Milkshake Man",
+          "country": "Australia",
+          "order": 1,
+          "id": 1
+        },
+        "2": {
+          "order": 2,
+          "country": "Montenegro",
+          "name": "Nina Žižić – Dobrodošli",
+          "id": 2
+        },
+        "3": {
+          "order": 3,
+          "country": "Ireland",
+          "id": 3,
+          "name": "EMMY – Laika Party"
+        },
+        "4": {
+          "order": 4,
+          "country": "Latvia",
+          "name": "Tautumeitas – Bur man laimi",
+          "id": 4
+        },
+        "5": {
+          "name": "Parg – Survivor",
+          "id": 5,
+          "order": 5,
+          "country": "Armenia"
+        },
+        "6": {
+          "order": 6,
+          "name": "JJ – Wasted Love",
+          "country": "Austria",
+          "id": 6
+        },
+        "7": {
+          "name": "Remember Monday – What the Hell Just Happened?",
+          "order": 7,
+          "id": 7,
+          "country": "United Kingdom"
+        },
+        "8": {
+          "id": 8,
+          "name": "Klavdia – Asteromata",
+          "country": "Greece",
+          "order": 8
+        },
+        "9": {
+          "id": 9,
+          "country": "Lithuania",
+          "name": "Katarsis – Tavo akys",
+          "order": 9
+        },
+        "10": {
+          "id": 10,
+          "name": "Miriana Conte – Serving",
+          "country": "Malta",
+          "order": 10
+        },
+        "11": {
+          "country": "Georgia",
+          "name": "Mariam Shengelia – Freedom",
+          "order": 11,
+          "id": 11
+        },
+        "12": {
+          "id": 12,
+          "country": "France",
+          "name": "Louane – Maman",
+          "order": 12
+        },
+        "13": {
+          "order": 13,
+          "id": 13,
+          "name": "Sissal – Hallucination",
+          "country": "Denmark"
+        },
+        "14": {
+          "order": 14,
+          "name": "ADONXS – Kiss Kiss Goodbye",
+          "country": "Czechia",
+          "id": 14
+        },
+        "15": {
+          "name": "Laura Thorn – La poupée monte le son",
+          "order": 15,
+          "id": 15,
+          "country": "Luxembourg"
+        },
+        "16": {
+          "name": "Yuval Raphael – New Day Will Rise",
+          "order": 16,
+          "id": 16,
+          "country": "Israel"
+        },
+        "17": {
+          "name": "Abor & Tynna – Baller",
+          "id": 17,
+          "order": 17,
+          "country": "Germany"
+        },
+        "18": {
+          "order": 18,
+          "name": "Princ – Mila",
+          "id": 18,
+          "country": "Serbia"
+        },
+        "19": {
+          "country": "Finland",
+          "order": 19,
+          "name": "Erika Vikman – Ich komme",
+          "id": 19
+        }
+      },
+      "scores": {
+        "1": {},
+        "2": {},
+        "3": {},
+        "4": {},
+        "5": {},
+        "6": {},
+        "7": {},
+        "8": {},
+        "9": {},
+        "10": {},
+        "11": {},
+        "12": {},
+        "13": {},
+        "14": {},
+        "15": {},
+        "16": {},
+        "17": {},
+        "18": {},
+        "19": {}
+      }
+    }
+  },
+  "users": [
+    {
+      "id": "1747148411686",
+      "isAdmin": true,
+      "name": "Snir"
+    },
+    {
+      "id": "1747149142750",
+      "isAdmin": false,
+      "name": "Chen"
+    },
+    {
+      "id": "1747162813056",
+      "name": "Orit Baba",
+      "isAdmin": false
+    },
+    {
+      "id": "1747162920503",
+      "isAdmin": false,
+      "name": "omer❤️"
+    },
+    {
+      "id": "1747162986850",
+      "isAdmin": false,
+      "name": "Noga 🦚"
+    },
+    {
+      "id": "1747163001504",
+      "name": "Asaf",
+      "isAdmin": false
+    },
+    {
+      "id": "1747163362234",
+      "isAdmin": false,
+      "name": "עדי"
+    },
+    {
+      "id": "1747163395872",
+      "isAdmin": false,
+      "name": "roy"
+    },
+    {
+      "id": "1747163401026",
+      "isAdmin": false,
+      "name": "גלית"
+    },
+    {
+      "id": "1747163416910",
+      "isAdmin": false,
+      "name": "Yael"
+    },
+    {
+      "id": "1747163528937",
+      "name": "Amit",
+      "isAdmin": false
+    },
+    {
+      "id": "1747163771182",
+      "name": "Amit Michaely",
+      "isAdmin": false
+    },
+    {
+      "id": "1747163847050",
+      "isAdmin": false,
+      "name": "Eleni Foureira"
+    },
+    {
+      "id": "1747164081975",
+      "name": "Arbel",
+      "isAdmin": false
+    },
+    {
+      "id": "1747164087276",
+      "name": "Dgancha cha cha",
+      "isAdmin": false
+    },
+    {
+      "id": "1747164088708",
+      "isAdmin": false,
+      "name": "Ahinoam"
+    },
+    {
+      "id": "1747164136177",
+      "name": "Ahinoam ",
+      "isAdmin": false
+    },
+    {
+      "id": "1747164218191",
+      "isAdmin": false,
+      "name": "Aviv"
+    },
+    {
+      "id": "1747164578511",
+      "name": "Liran",
+      "isAdmin": false
+    },
+    {
+      "id": "1747165959970",
+      "name": "Benyahav",
+      "isAdmin": false
+    },
+    {
+      "id": "1747218609348",
+      "name": "avi",
+      "isAdmin": false
+    },
+    {
+      "id": "1747218824642",
+      "name": "meir",
+      "isAdmin": false
+    }
+  ]
+}

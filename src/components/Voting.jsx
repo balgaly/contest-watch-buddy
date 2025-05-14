@@ -1,5 +1,5 @@
 // components/Voting.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CRITERIA } from '../constants';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
@@ -20,222 +20,266 @@ const countryCodeMap = {
     'Albania': 'AL',
     'Netherlands': 'NL',
     'Croatia': 'HR',
-    'Cyprus': 'CY'
+    'Cyprus': 'CY',
+    'Australia': 'AU',
+    'Montenegro': 'ME',
+    'Ireland': 'IE',
+    'Latvia': 'LV',
+    'Armenia': 'AM',
+    'Austria': 'AT',
+    'United Kingdom': 'GB',
+    'Greece': 'GR',
+    'Lithuania': 'LT',
+    'Malta': 'MT',
+    'Georgia': 'GE',
+    'France': 'FR',
+    'Denmark': 'DK',
+    'Czechia': 'CZ',
+    'Luxembourg': 'LU',
+    'Israel': 'IL',
+    'Germany': 'DE',
+    'Serbia': 'RS',
+    'Finland': 'FI'
 };
 
 const Voting = ({ activeContest, currentContestant, updateScore, getScore, setCurrentContestant }) => {
-    const [scores, setScores] = useState({});
+    const [tempScores, setTempScores] = useState({});
     const [confirmation, setConfirmation] = useState('');
-    const formRef = useRef(null);
-    const [highlight, setHighlight] = useState(false);
+    const [expandedContestant, setExpandedContestant] = useState(null);
+    const [unsavedChanges, setUnsavedChanges] = useState({});
 
-    const formatScore = (score) => {
-        if (!score) return score;
-        const numScore = parseFloat(score);
-        return Number.isInteger(numScore) ? numScore.toString() : numScore.toFixed(2);
-    };
-
+    // Initialize scores when component loads and when scores change
     useEffect(() => {
         const fetchScores = async () => {
-            if (currentContestant) {
-                const newScores = {};
+            const allSavedScores = {};
+            for (const contestant of activeContest.contestants) {
+                const savedScores = {};
+                let hasAnyScores = false;
                 for (const criterion of CRITERIA) {
-                    newScores[criterion.id] = await getScore(currentContestant, criterion.id);
+                    const score = await getScore(contestant.id, criterion.id);
+                    if (score > 0) {
+                        savedScores[criterion.id] = score;
+                        hasAnyScores = true;
+                    }
                 }
-                newScores['overall'] = await getScore(currentContestant, 'overall');
-                console.log('Fetched scores:', newScores);
-                setScores(newScores);
+                const overall = await getScore(contestant.id, 'overall');
+                if (overall > 0) {
+                    savedScores['overall'] = overall;
+                    hasAnyScores = true;
+                }
+                if (hasAnyScores) {
+                    allSavedScores[contestant.id] = savedScores;
+                }
             }
+            setTempScores(allSavedScores);
+            setUnsavedChanges({});
         };
         fetchScores();
-    }, [currentContestant, getScore]);
+    }, [activeContest.contestants, getScore]);
 
-    useEffect(() => {
-        if (currentContestant && formRef.current) {
-            formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            setHighlight(true);
-            setTimeout(() => setHighlight(false), 800);
-        }
-    }, [currentContestant]);
+    const handleScore = (contestantId, criterionId, delta) => {
+        setTempScores(prev => {
+            const currentScores = prev[contestantId] || {};
+            const currentValue = currentScores[criterionId] || 0;
+            let newValue = Math.max(1, Math.min(10, currentValue + delta));
+            
+            const newScores = {
+                ...currentScores,
+                [criterionId]: newValue
+            };
 
-    const handleScoreChange = (contestantId, criterionId, value) => {
-        const newScores = {
-            ...scores,
-            [criterionId]: parseFloat(value)
-        };
-
-        // Calculate overall score
-        let overall = 0;
-        let hasAllScores = true;
-        CRITERIA.forEach(criterion => {
-            if (newScores[criterion.id] !== undefined) {
-                overall += newScores[criterion.id] * criterion.weight;
-            } else {
-                hasAllScores = false;
+            // Calculate overall score
+            let overall = 0;
+            let hasAllScores = true;
+            CRITERIA.forEach(criterion => {
+                if (newScores[criterion.id] !== undefined) {
+                    overall += newScores[criterion.id] * criterion.weight;
+                } else {
+                    hasAllScores = false;
+                }
+            });
+            if (hasAllScores) {
+                newScores['overall'] = overall;
             }
+
+            // Mark as having unsaved changes
+            setUnsavedChanges(prev => ({
+                ...prev,
+                [contestantId]: true
+            }));
+
+            return {
+                ...prev,
+                [contestantId]: newScores
+            };
         });
-        if (hasAllScores) {
-            newScores['overall'] = overall;
-        }
-
-        setScores(newScores);
-        updateScore(contestantId, criterionId, value);
-        if (hasAllScores) {
-            updateScore(contestantId, 'overall', overall);
-        }
     };
 
-    const handleSendScores = async () => {
-        if (currentContestant) {
-            console.log('Sending scores:', scores);
-            for (const criterion of CRITERIA) {
-                await updateScore(currentContestant, criterion.id, scores[criterion.id] || 0);
+    const saveScores = async (contestantId) => {
+        const scores = tempScores[contestantId];
+        if (!scores) return false;
+
+        // Check if all criteria have scores
+        const hasAllScores = CRITERIA.every(criterion => scores[criterion.id] !== undefined);
+        if (!hasAllScores) {
+            alert('Please rate all criteria before closing');
+            return false;
+        }
+
+        // Submit all scores
+        for (const criterion of CRITERIA) {
+            await updateScore(contestantId, criterion.id, scores[criterion.id]);
+        }
+        await updateScore(contestantId, 'overall', scores['overall']);
+
+        setConfirmation(`Scores for ${activeContest.contestants.find(c => c.id === contestantId)?.name} saved successfully!`);
+        setTimeout(() => setConfirmation(''), 3000);
+
+        // Clear unsaved changes flag for this contestant
+        setUnsavedChanges(prev => {
+            const next = { ...prev };
+            delete next[contestantId];
+            return next;
+        });
+
+        return true;
+    };
+
+    const handleToggleExpand = async (contestantId) => {
+        if (expandedContestant === contestantId) {
+            // If we're closing a panel and there are unsaved changes, save them
+            if (unsavedChanges[contestantId]) {
+                const success = await saveScores(contestantId);
+                if (!success) {
+                    // Don't close the panel if saving failed
+                    return;
+                }
             }
-            await updateScore(currentContestant, 'overall', scores['overall'] || 0);
-            setConfirmation('Scores sent successfully!');
-            setTimeout(() => setConfirmation(''), 3000);
+            setExpandedContestant(null);
+        } else {
+            setExpandedContestant(contestantId);
         }
     };
 
-    if (!activeContest || !activeContest.contestants || activeContest.contestants.length === 0) {
+    if (!activeContest?.contestants?.length) {
         return (
             <div className="p-4">
-                <h2 className="text-xl font-bold mb-4">Voting</h2>
-                <p>No contestants available for this contest. Please check the contest data.</p>
+                <p>No contestants available for this contest.</p>
             </div>
         );
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 max-w-2xl mx-auto w-full">
-            {/* Contestant List */}
-            <div className="bg-white rounded-lg shadow p-4 mb-4 md:mb-0 md:col-span-1">
-                <h2 className="text-xl font-bold mb-4 text-center md:text-left">Contestants</h2>
-                <ul className="space-y-2">
-                    {[...activeContest.contestants]
-                        .sort((a, b) => parseInt(a.id) - parseInt(b.id))
-                        .map(contestant => (
-                        <li
-                            key={contestant.id}
-                            className={`text-purple-800 font-medium cursor-pointer hover:underline px-3 py-2 rounded transition-all duration-150 ${currentContestant === contestant.id ? 'bg-purple-200' : 'hover:bg-purple-100'}`}
-                            onClick={() => setCurrentContestant(contestant.id)}
-                        >
-                            {contestant.country && countryCodeMap[contestant.country] && (
-                                <ReactCountryFlag
-                                    countryCode={countryCodeMap[contestant.country]}
-                                    svg
-                                    style={{
-                                        width: '1.2em',
-                                        height: '1.2em',
-                                        marginRight: '0.3em',
-                                        verticalAlign: 'middle'
-                                    }}
-                                    title={contestant.country}
-                                />
-                            )}
-                            {contestant.name}
-                        </li>
-                    ))}
-                </ul>
-            </div>
-            {/* Voting Form */}
-            <div ref={formRef} className={`bg-white rounded-lg shadow p-4 md:col-span-2 w-full transition-all duration-500 ${highlight ? 'ring-2 ring-purple-400' : ''}`}>
-                {/* Sticky header for selected song on mobile */}
-                {currentContestant && (
-                    <div className="sticky top-0 z-10 bg-white pb-2 mb-4 border-b border-purple-200 flex items-center justify-center md:justify-start">
-                        <span className="font-bold text-purple-800 text-lg flex items-center">
-                            {(() => {
-                                const contestant = activeContest.contestants.find(c => c.id === currentContestant);
-                                return (
-                                    <>
-                                        {contestant?.country && countryCodeMap[contestant.country] && (
-                                            <ReactCountryFlag
-                                                countryCode={countryCodeMap[contestant.country]}
-                                                svg
-                                                style={{
-                                                    width: '1.5em',
-                                                    height: '1.5em',
-                                                    marginRight: '0.5em',
-                                                    verticalAlign: 'middle'
-                                                }}
-                                                title={contestant.country}
-                                            />
-                                        )}
-                                        {contestant?.name}
-                                    </>
-                                );
-                            })()}
-                        </span>
-                    </div>
-                )}
-                {currentContestant ? (
-                    <div>
-                        <h2 className="text-xl font-bold mb-4 text-center md:text-left">
-                            Rate: {
-                                (() => {
-                                    const contestant = activeContest.contestants.find(c => c.id === currentContestant);
-                                    return (
-                                        <>
-                                            {contestant?.country && countryCodeMap[contestant.country] && (
-                                                <ReactCountryFlag
-                                                    countryCode={countryCodeMap[contestant.country]}
-                                                    svg
-                                                    style={{
-                                                        width: '1.5em',
-                                                        height: '1.5em',
-                                                        marginRight: '0.5em',
-                                                        verticalAlign: 'middle'
-                                                    }}
-                                                    title={contestant.country}
-                                                />
-                                            )}
-                                            {contestant?.name}
-                                        </>
-                                    );
-                                })()
-                            }
-                        </h2>
-                        {CRITERIA.map(criterion => (
-                            <div key={criterion.id} className="mb-8">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    {criterion.label} (1-10) <span className="text-xs text-gray-500">Weight: {criterion.weight * 100}%</span>
-                                </label>
-                                <p className="text-xs text-gray-600 mb-2">{criterion.description}</p>
+        <div className="max-w-3xl mx-auto">
+            <div className="space-y-2">
+                {activeContest.contestants
+                    .sort((a, b) => parseInt(a.id) - parseInt(b.id))
+                    .map(contestant => (
+                        <div key={contestant.id} className="bg-white rounded-lg shadow overflow-hidden">
+                            {/* Contestant Header - Always visible */}
+                            <div 
+                                className={`p-4 flex items-center justify-between cursor-pointer hover:bg-cyan-50 transition-colors ${
+                                    expandedContestant === contestant.id ? 'bg-cyan-50' : ''
+                                }`}
+                                onClick={() => handleToggleExpand(contestant.id)}
+                            >
                                 <div className="flex items-center gap-2">
-                                    <input
-                                        type="range"
-                                        min="1"
-                                        max="10"
-                                        value={scores[criterion.id] || 1}
-                                        onChange={(e) => handleScoreChange(currentContestant, criterion.id, e.target.value)}
-                                        className="w-full h-3 md:h-2 rounded-lg appearance-none bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                        style={{ accentColor: '#a78bfa', touchAction: 'none' }}
-                                    />
-                                    <span className="text-lg font-bold w-10 text-center">
-                                        {scores[criterion.id] || 1}
-                                    </span>
+                                    {contestant.country && countryCodeMap[contestant.country] && (
+                                        <ReactCountryFlag
+                                            countryCode={countryCodeMap[contestant.country]}
+                                            svg
+                                            style={{ width: '1.5em', height: '1.5em' }}
+                                            title={contestant.country}
+                                        />
+                                    )}
+                                    <span className="font-medium text-cyan-900">{contestant.name}</span>
                                 </div>
-                            </div>
-                        ))}
-                        {/* Overall Score */}
-                        <div className="mt-8 p-4 bg-purple-200 rounded-lg text-center">
-                            <h3 className="font-medium text-purple-900">Weighted Overall Score:</h3>
-                            <div className="text-2xl font-bold mt-1">
-                                {scores['overall']
-                                    ? formatScore(scores['overall'])
-                                    : 'Rate all categories to see overall score'}
-                            </div>
-                            <p className="text-xs text-gray-500 mt-1">
-                                Formula: (Song Quality × 40%) + (Staging × 25%) + (Vocal Quality × 35%)
-                            </p>
+                                <div className="flex items-center gap-2">
+                                    {tempScores[contestant.id]?.overall && (
+                                        <span className={`px-2 py-1 rounded text-sm font-semibold bg-cyan-50 text-cyan-700 min-w-[4rem] text-center ${unsavedChanges[contestant.id] ? 'border border-yellow-400 bg-yellow-50' : ''}`}>
+                                            {tempScores[contestant.id].overall.toFixed(2)}
+                                            {unsavedChanges[contestant.id] && '*'}
+                                        </span>
+                                    )}
+                                    <svg 
+                                        className={`w-5 h-5 text-cyan-600 transition-transform ${expandedContestant === contestant.id ? 'transform rotate-180' : ''}`}
+                                        fill="none" 
+                                        viewBox="0 0 24 24" 
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+                            </div>                            {/* Voting Panel - Expands below the contestant */}
+                            {expandedContestant === contestant.id && (                                <div className="border-t border-cyan-100 p-4 bg-gradient-to-b from-cyan-50/50 to-white">
+                                    <div className="mb-4 bg-cyan-50 border border-cyan-200 rounded-lg p-2 flex items-center gap-2 text-cyan-700">
+                                        <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span className="text-xs">Changes are automatically saved when you close this panel</span>
+                                    </div>
+                                    <div className="space-y-6">
+                                        {CRITERIA.map(criterion => {
+                                            const score = tempScores[contestant.id]?.[criterion.id];
+                                            return (
+                                                <div key={criterion.id} className="flex flex-col gap-2">
+                                                    <div className="flex justify-between items-center">
+                                                        <label className="text-sm font-medium text-cyan-900">
+                                                            {criterion.label}
+                                                            <span className="ml-1 text-xs text-cyan-600">
+                                                                (Weight: {criterion.weight * 100}%)
+                                                            </span>
+                                                        </label>
+                                                        <div className="flex items-center gap-2 min-w-[140px] justify-end">
+                                                            <button
+                                                                onClick={() => handleScore(contestant.id, criterion.id, -1)}
+                                                                className="w-8 h-8 rounded-full bg-cyan-100 text-cyan-700 hover:bg-cyan-200 flex items-center justify-center flex-shrink-0"
+                                                                disabled={!score || score <= 1}
+                                                            >
+                                                                -
+                                                            </button>
+                                                            <div className="w-12 text-center font-bold text-lg text-cyan-700 tabular-nums">
+                                                                {score || '-'}
+                                                            </div>
+                                                            <button
+                                                                onClick={() => handleScore(contestant.id, criterion.id, 1)}
+                                                                className="w-8 h-8 rounded-full bg-cyan-100 text-cyan-700 hover:bg-cyan-200 flex items-center justify-center flex-shrink-0"
+                                                                disabled={score >= 10}
+                                                            >
+                                                                +
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-xs text-cyan-600">{criterion.description}</p>
+                                                </div>
+                                            );
+                                        })}
+
+                                        {/* Overall Score Display */}
+                                        {tempScores[contestant.id]?.overall && (
+                                            <div className="mt-4 flex justify-center">
+                                                <div className={`w-full max-w-[200px] px-4 py-3 rounded-lg text-center ${unsavedChanges[contestant.id] ? 'bg-yellow-50 border border-yellow-200' : 'bg-cyan-50'}`}>
+                                                    <div className="text-sm font-medium text-cyan-700">Overall Score</div>
+                                                    <div className="text-2xl font-bold text-cyan-900 tabular-nums">
+                                                        {tempScores[contestant.id].overall.toFixed(2)}
+                                                        {unsavedChanges[contestant.id] && <span className="text-yellow-600">*</span>}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    </div>
-                ) : (
-                    <div className="h-48 flex items-center justify-center text-gray-500 text-center">
-                        Tap a contestant's name to rate them
-                    </div>
-                )}
+                    ))}
             </div>
+
+            {/* Confirmation Message */}
+            {confirmation && (
+                <div className="fixed bottom-4 right-4 bg-green-100 border border-green-200 text-green-700 px-4 py-2 rounded shadow-lg">
+                    {confirmation}
+                </div>
+            )}
         </div>
     );
 };

@@ -1,35 +1,42 @@
 // components/ContestSelection.jsx
-import React from 'react';
+import React, { useState } from 'react';
 
-const ContestSelection = ({ contests, activeContestId, switchContest, goBack }) => {
+const ContestSelection = ({ contests, activeContestId, switchContest }) => {
+    const [selectedContestId, setSelectedContestId] = useState(activeContestId);
+
+    const handleSubmit = () => {
+        switchContest(selectedContestId);
+    };
+
     return (
-        <div className="min-h-screen bg-purple-200 p-4">
-            <div className="max-w-lg mx-auto bg-white rounded-lg shadow-lg p-6">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold text-purple-900">Select Contest</h1>
-                    <button onClick={goBack} className="px-3 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
-                        Back
+        <div className="min-h-screen bg-cyan-100 flex items-center justify-center p-4">
+            <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6">
+                <h1 className="text-2xl font-bold text-cyan-900 mb-6 text-center">Select Contest</h1>
+                <div className="space-y-4">
+                    <div>
+                        <label htmlFor="contest-select" className="block text-sm font-medium text-gray-700 mb-2">
+                            Choose a Contest
+                        </label>
+                        <select
+                            id="contest-select"
+                            className="w-full p-3 border rounded text-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                            value={selectedContestId}
+                            onChange={e => setSelectedContestId(e.target.value)}
+                        >
+                            {contests.map(contest => (
+                                <option key={contest.id} value={contest.id}>
+                                    {contest.name} ({contest.contestants.length} contestants)
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <button
+                        onClick={handleSubmit}
+                        className="w-full py-3 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
+                    >
+                        Switch to Selected Contest
                     </button>
                 </div>
-                <ul className="space-y-2 mb-6">
-                    {contests.map(contest => (
-                        <li key={contest.id} className="border rounded p-3">
-                            <div className="flex justify-between items-center">
-                                <span>
-                                    {contest.name}
-                                    {contest.id === activeContestId && <span className="ml-2 text-green-600 text-xs">(Current)</span>}
-                                </span>
-                                <button
-                                    onClick={() => switchContest(contest.id)}
-                                    className="px-3 py-1 bg-purple-200 text-purple-900 rounded hover:bg-purple-300"
-                                >
-                                    Select
-                                </button>
-                            </div>
-                            <div className="text-sm text-gray-500 mt-1">{contest.contestants.length} contestants</div>
-                        </li>
-                    ))}
-                </ul>
             </div>
         </div>
     );

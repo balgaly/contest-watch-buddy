@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { ADMIN_PASSWORD, CRITERIA, initialContests } from './constants';
+import { ADMIN_PASSWORD, CRITERIA } from './constants';
 import LoginScreen from './components/LoginScreen';
 import SessionScreen from './components/SessionScreen';
 import UserManagement from './components/UserManagement';
 import ContestSelection from './components/ContestSelection';
 import Voting from './components/Voting';
 import Results from './components/Results';
-import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import MyVotesResults from './components/MyVotesResults';
+import { collection, doc, setDoc, getDocs, deleteDoc, getDoc } from 'firebase/firestore';
 import { db } from './firebase/firebaseConfig';
 
 const App = () => {
@@ -28,34 +29,145 @@ const App = () => {
   const [allScores, setAllScores] = useState({});
 
   // Contest state
-  const [contests] = useState(initialContests);
-  const [activeContestId, setActiveContestId] = useState('euro2025sf1');
+  const [contests, setContests] = useState([]);
+  const [contestsLoading, setContestsLoading] = useState(true);
+  const [activeContestId, setActiveContestId] = useState('euro2025sf2');
   const [currentContestant, setCurrentContestant] = useState(null);
   const [selectedContestant, setSelectedContestant] = useState(null);
   
   // Get active contest
   const activeContest = contests.find(c => c.id === activeContestId) || contests[0];
 
+  // Load scores for active contest
+  useEffect(() => {
+    const fetchScores = async () => {
+      if (!activeContestId) return;
+      
+      try {
+        console.log("📡 Fetching scores for contest:", activeContestId);
+        const scoresData = {};
+        const contestantsRef = collection(db, "contests", activeContestId, "contestants");
+        const contestantsSnapshot = await getDocs(contestantsRef);
+
+        await Promise.all(contestantsSnapshot.docs.map(async (contestantDoc) => {
+          const contestantId = contestantDoc.id;
+          scoresData[contestantId] = {};
+          const scoresRef = collection(db, "contests", activeContestId, "contestants", contestantId, "scores");
+          const scoresSnapshot = await getDocs(scoresRef);
+          scoresSnapshot.forEach((scoreDoc) => {
+            const scoreData = scoreDoc.data();
+            // Update scores while preserving existing scores for other contests
+            setAllScores(prev => {
+              if (!prev[currentUser?.id]) return prev;  // If no user scores exist yet, wait for user scores effect
+              return {
+                ...prev,
+                [currentUser.id]: {
+                  ...prev[currentUser.id],
+                  [activeContestId]: {
+                    ...(prev[currentUser.id][activeContestId] || {}),
+                    [contestantId]: scoreData
+                  }
+                }
+              };
+            });
+          });
+        }));
+
+      } catch (error) {
+        console.error("🔥 Error fetching scores:", error);
+      }
+    };
+
+    fetchScores();
+  }, [activeContestId, currentUser]);
+
+  // Fetch all user's scores when logging in or resuming session
+  useEffect(() => {
+    const fetchUserScores = async () => {
+      if (!currentUser) return;
+      
+      try {
+        console.log("📡 Fetching all scores for user:", currentUser.name);
+        const userScores = {};
+
+        // Fetch scores for all contests
+        for (const contest of contests) {
+          userScores[contest.id] = {};
+          const contestantsRef = collection(db, "contests", contest.id, "contestants");
+          const contestantsSnapshot = await getDocs(contestantsRef);
+
+          for (const contestantDoc of contestantsSnapshot.docs) {
+            const contestantId = contestantDoc.id;
+            const scoreRef = doc(db, "contests", contest.id, "contestants", contestantId, "scores", currentUser.id);
+            const scoreDoc = await getDoc(scoreRef);
+            
+            if (scoreDoc.exists()) {
+              userScores[contest.id][contestantId] = scoreDoc.data();
+            }
+          }
+        }
+
+        // Update allScores with the user's scores
+        setAllScores(prev => ({
+          ...prev,
+          [currentUser.id]: userScores
+        }));
+
+        console.log("✅ User scores fetched successfully:", userScores);
+      } catch (error) {
+        console.error("🔥 Error fetching user scores:", error);
+      }
+    };
+
+    fetchUserScores();
+  }, [currentUser, contests]);
+
   // Load global data and current session on mount
   useEffect(() => {
-    // Fetch users from Firestore
-    const fetchUsers = async () => {
+    const loadData = async () => {
       try {
+        // Fetch users from Firestore
         const usersSnapshot = await getDocs(collection(db, "users"));
         const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setUsers(usersList);
         localStorage.setItem('globalUsers', JSON.stringify(usersList));
-      } catch (e) {
-        // fallback to localStorage if Firestore fails
+
+        // Fetch contests from Firestore
+        console.log("📡 Fetching contests from Firebase...");
+        const contestsRef = collection(db, 'contests');
+        const contestsSnapshot = await getDocs(contestsRef);
+        const fetchedContests = [];
+        
+        for (const contestDoc of contestsSnapshot.docs) {
+          const contestData = contestDoc.data();
+          // Fetch contestants for each contest
+          const contestantsRef = collection(db, 'contests', contestDoc.id, 'contestants');
+          const contestantsSnapshot = await getDocs(contestantsRef);
+          const contestants = contestantsSnapshot.docs.map(docu => ({ id: docu.id, ...docu.data() }));
+          fetchedContests.push({ id: contestDoc.id, ...contestData, contestants });
+        }
+        
+        console.log("✅ Fetched contests:", fetchedContests);
+        setContests(fetchedContests);
+        
+        // Set default contest if not set and we have contests
+        if ((!activeContestId || !fetchedContests.find(c => c.id === activeContestId)) && fetchedContests.length > 0) {
+          console.log("Setting default contest to:", fetchedContests[0].id);
+          setActiveContestId(fetchedContests[0].id);
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+        // Fallback to localStorage
         const storedGlobalUsers = localStorage.getItem('globalUsers');
         if (storedGlobalUsers) setUsers(JSON.parse(storedGlobalUsers));
+      } finally {
+        setContestsLoading(false);
       }
     };
-    fetchUsers();
-    const storedGlobalAllScores = localStorage.getItem('globalAllScores');
-    if (storedGlobalAllScores) {
-      setAllScores(JSON.parse(storedGlobalAllScores));
-    }
+
+    loadData();
+
+    // Load session data
     const storedSession = localStorage.getItem('currentSession');
     if (storedSession && !currentUser) {
       const session = JSON.parse(storedSession);
@@ -99,6 +211,9 @@ const App = () => {
       newUser = { name: username, isAdmin: false };
     }
     try {
+      // Save the username before clearing it
+      localStorage.setItem('lastUsername', username.trim());
+
       // Check if user already exists in Firestore (by name)
       const usersSnapshot = await getDocs(collection(db, "users"));
       let existing = null;
@@ -107,6 +222,13 @@ const App = () => {
       });
       let userId;
       if (existing) {
+        // If user exists and is an admin, require password
+        if (existing.isAdmin) {
+          if (!showAdminLogin || password !== ADMIN_PASSWORD) {
+            setLoginError("This username belongs to an admin. Please use admin login.");
+            return;
+          }
+        }
         userId = existing.id;
         newUser = existing;
       } else {
@@ -130,6 +252,7 @@ const App = () => {
       const usersList = usersSnapshotAfterLogin.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setUsers(usersList);
     } catch (e) {
+      console.error("Login error:", e);
       setLoginError("Could not log in. Please try again.");
     }
   };
@@ -154,49 +277,43 @@ const App = () => {
     }
   };
 
-  // Clear competition (admin-only)
+  // Clear current contest scores only (admin-only)
   const handleClearCompetition = async () => {
-    if (window.confirm("Are you sure you want to clear the entire competition? This will remove all votes and users.")) {
+    if (window.confirm(`Are you sure you want to clear all scores for ${activeContest.name}? This will remove all votes for this contest only.`)) {
       try {
-        console.log("🗑️ Starting competition cleanup...");
+        console.log(`🗑️ Starting cleanup for contest: ${activeContest.name}...`);
         
-        // Clear Firebase scores for each contestant in each contest
-        for (const contest of contests) {
-          console.log(`Clearing scores for contest: ${contest.id}`);
-          const contestantsRef = collection(db, "contests", contest.id, "contestants");
-          const contestantsSnapshot = await getDocs(contestantsRef);
+        // Clear Firebase scores for the current contest only
+        const contestantsRef = collection(db, "contests", activeContestId, "contestants");
+        const contestantsSnapshot = await getDocs(contestantsRef);
+        
+        for (const contestantDoc of contestantsSnapshot.docs) {
+          const scoresRef = collection(db, "contests", activeContestId, "contestants", contestantDoc.id, "scores");
+          const scoresSnapshot = await getDocs(scoresRef);
           
-          for (const contestantDoc of contestantsSnapshot.docs) {
-            const scoresRef = collection(db, "contests", contest.id, "contestants", contestantDoc.id, "scores");
-            const scoresSnapshot = await getDocs(scoresRef);
-            
-            // Delete all scores for this contestant
-            for (const scoreDoc of scoresSnapshot.docs) {
-              await deleteDoc(doc(db, "contests", contest.id, "contestants", contestantDoc.id, "scores", scoreDoc.id));
-            }
+          // Delete all scores for this contestant
+          for (const scoreDoc of scoresSnapshot.docs) {
+            await deleteDoc(doc(db, "contests", activeContestId, "contestants", contestantDoc.id, "scores", scoreDoc.id));
           }
         }
 
-        // Clear all users from Firebase (except admins if needed)
-        const usersRef = collection(db, "users");
-        const usersSnapshot = await getDocs(usersRef);
-        for (const userDoc of usersSnapshot.docs) {
-          await deleteDoc(doc(db, "users", userDoc.id));
-        }
+        // Clear only scores for this contest from local state
+        setAllScores(prev => {
+          const newScores = { ...prev };
+          // For each user's scores
+          Object.keys(newScores).forEach(userId => {
+            if (newScores[userId][activeContestId]) {
+              // Remove only this contest's scores
+              delete newScores[userId][activeContestId];
+            }
+          });
+          return newScores;
+        });
 
-        // Clear local state
-        setUsers([]);
-        setAllScores({});
-        setCurrentUser(null);
-        setPage('login');
-        localStorage.removeItem('currentSession');
-        localStorage.removeItem('globalUsers');
-        localStorage.removeItem('globalAllScores');
-
-        console.log("✅ Competition data cleared successfully!");
+        console.log(`✅ Successfully cleared all scores for ${activeContest.name}!`);
       } catch (error) {
-        console.error("🔥 Error clearing competition data:", error);
-        alert("There was an error clearing some data. Please try again or contact support.");
+        console.error("🔥 Error clearing contest scores:", error);
+        alert("There was an error clearing the scores. Please try again or contact support.");
       }
     }
   };
@@ -277,10 +394,42 @@ const App = () => {
   };
 
   const switchContest = (contestId) => {
-    setActiveContestId(contestId);
-    setCurrentContestant(null);
-    setSelectedContestant(null);
-    setPage('main');
+    if (contests.find(c => c.id === contestId)) {
+      setActiveContestId(contestId);
+      setCurrentContestant(null);
+      setSelectedContestant(null);
+      // Only switch to main page if we're already logged in
+      if (currentUser) {
+        setPage('main');
+      }
+    }
+  };
+
+  const toggleContestStatus = async () => {
+    if (!currentUser?.isAdmin || !activeContest) return;
+    
+    try {
+      const contestRef = doc(db, "contests", activeContestId);
+      const newStatus = !activeContest.closed;
+      
+      // Update Firestore
+      await setDoc(contestRef, { closed: newStatus }, { merge: true });
+      
+      // Update local state
+      setContests(prev => prev.map(contest => 
+        contest.id === activeContestId 
+          ? { ...contest, closed: newStatus }
+          : contest
+      ));
+
+      // If contest is being closed and voting tab is active, switch to results
+      if (newStatus && activeTab === 'voting') {
+        setActiveTab('results');
+      }
+    } catch (error) {
+      console.error("Error toggling contest status:", error);
+      alert("Failed to update contest status. Please try again.");
+    }
   };
 
   const updateScore = async (contestantId, criterionId, value) => {
@@ -413,6 +562,9 @@ const App = () => {
         setShowAdminLogin={setShowAdminLogin}
         loginError={loginError}
         handleLogin={handleLogin}
+        contests={contests}
+        activeContestId={activeContestId}
+        switchContest={switchContest}
       />
     );
   }
@@ -446,47 +598,73 @@ const App = () => {
   }
   if (page === 'main') {
     return (
-      <div className="min-h-screen bg-purple-50 p-4">
+      <div className="min-h-screen bg-cyan-50 p-4">
         <div className="max-w-6xl mx-auto">
           <header className="mb-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-              <div>
-                <h1 className="text-2xl font-bold text-purple-800">{activeContest.name}</h1>
-                {currentUser?.isAdmin && (
-                  <div className="flex space-x-4 mt-1">
-                    <button onClick={() => setPage('contestSelection')} className="text-sm text-purple-600 hover:underline">
+            <div className="flex flex-col space-y-4">
+              {/* Contest Info & User Info */}
+              <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-2xl font-bold text-cyan-900 truncate">{activeContest?.name || 'Contest'}</h1>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                    <button onClick={() => setPage('contestSelection')} className="text-sm text-cyan-600 hover:underline">
                       Change Contest
                     </button>
-                    <button onClick={() => setPage('userManagement')} className="text-sm text-purple-600 hover:underline">
-                      Manage Users
-                    </button>
+                    {currentUser?.isAdmin && (
+                      <button onClick={() => setPage('userManagement')} className="text-sm text-cyan-600 hover:underline">
+                        Manage Users
+                      </button>
+                    )}
                   </div>
-                )}
+                  {activeContest?.closed && (
+                    <div className="mt-1 text-sm text-red-600 font-medium flex items-center gap-1">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m10-6H4a2 2 0 01-2-2V7a2 2 0 012-2h16a2 2 0 012 2v3a2 2 0 01-2 2z" />
+                      </svg>
+                      Voting is closed
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-end gap-2">
+                  <span className="text-gray-600 whitespace-nowrap">
+                    {currentUser?.name} {currentUser?.isAdmin && <span className="text-cyan-600">👑</span>}
+                  </span>
+                  <button onClick={handleLogout} className="px-3 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 text-sm whitespace-nowrap">
+                    Logout
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center mt-2 sm:mt-0">
-                <span className="text-gray-600">
-                  {currentUser?.name} {currentUser?.isAdmin && <span className="text-purple-600">👑</span>}
-                </span>
-                <button onClick={handleLogout} className="ml-4 px-3 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 text-sm">
-                  Logout
-                </button>
-                {currentUser?.isAdmin && (
-                  <button onClick={handleClearCompetition} className="ml-4 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm">
+
+              {/* Admin Controls */}
+              {currentUser?.isAdmin && (
+                <div className="flex flex-wrap gap-2 justify-start sm:justify-end">
+                  <button onClick={toggleContestStatus} className={`px-3 py-1 rounded text-sm ${activeContest?.closed ? 'bg-green-500 hover:bg-green-600' : 'bg-yellow-500 hover:bg-yellow-600'} text-white`}>
+                    {activeContest?.closed ? 'Open Voting' : 'Close Voting'}
+                  </button>
+                  <button onClick={handleClearCompetition} className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm">
                     Clear Competition
                   </button>
+                </div>
+              )}
+
+              {/* Tab Navigation */}
+              <div className="flex flex-wrap gap-2">
+                {!activeContest?.closed && (
+                  <button onClick={() => setActiveTab('voting')} className={`px-4 py-2 rounded ${activeTab === 'voting' ? 'bg-cyan-600 text-white' : 'bg-gray-200'}`}>
+                    Voting
+                  </button>
                 )}
+                <button onClick={() => setActiveTab('results')} className={`px-4 py-2 rounded ${activeTab === 'results' ? 'bg-cyan-600 text-white' : 'bg-gray-200'}`}>
+                  Results
+                </button>
+                <button onClick={() => setActiveTab('myvotes')} className={`px-4 py-2 rounded ${activeTab === 'myvotes' ? 'bg-cyan-600 text-white' : 'bg-gray-200'}`}>
+                  My Results
+                </button>
               </div>
             </div>
-            <div className="flex gap-2">
-              <button onClick={() => setActiveTab('voting')} className={`px-4 py-2 rounded ${activeTab === 'voting' ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
-                Voting
-              </button>
-              <button onClick={() => setActiveTab('results')} className={`px-4 py-2 rounded ${activeTab === 'results' ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
-                Results
-              </button>
-            </div>
           </header>
-          {activeTab === 'voting' ? (
+          {activeTab === 'voting' && !activeContest?.closed ? (
             <Voting
               activeContest={activeContest}
               currentContestant={currentContestant}
@@ -494,7 +672,7 @@ const App = () => {
               getScore={getScore}
               setCurrentContestant={setCurrentContestant}
             />
-          ) : (
+          ) : activeTab === 'results' ? (
             <Results
               activeContest={activeContest}
               getAverageScore={getAverageScore}
@@ -506,6 +684,12 @@ const App = () => {
               currentUser={currentUser}
               handleEditVote={handleEditVote}
             />
+          ) : (
+            <MyVotesResults
+              activeContest={activeContest}
+              allScores={allScores}
+              currentUser={currentUser}
+            />
           )}
         </div>
       </div>
@@ -515,44 +699,3 @@ const App = () => {
 };
 
 export default App;
-
-const initializeEuro2025SF1 = async () => {
-  const contestId = "euro2025sf1";
-  const contestants = [
-    { id: 1, name: "VÆB – RÓA", country: "Iceland" },
-    { id: 2, name: "Justyna Steczkowska – GAJA", country: "Poland" },
-    { id: 3, name: "Klemen – How Much Time Do We Have Left", country: "Slovenia" },
-    { id: 4, name: "Tommy Cash – Espresso Macchiato", country: "Estonia" },
-    { id: 5, name: "Ziferblat – Bird of Pray", country: "Ukraine" },
-    { id: 6, name: "KAJ – Bara Bada Bastu", country: "Sweden" },
-    { id: 7, name: "NAPA – Deslocado", country: "Portugal" },
-    { id: 8, name: "Kyle Alessandro – Lighter", country: "Norway" },
-    { id: 9, name: "Red Sebastian – Strobe Lights", country: "Belgium" },
-    { id: 10, name: "Mamagama – Run With U", country: "Azerbaijan" },
-    { id: 11, name: "Gabry Ponte – Tutta l'Italia", country: "San Marino" },
-    { id: 12, name: "Shkodra Elektronike – Zjerm", country: "Albania" },
-    { id: 13, name: "Claude – C'est la vie", country: "Netherlands" },
-    { id: 14, name: "Marko Bošnjak – Poison Cake", country: "Croatia" },
-    { id: 15, name: "Theo Evan – Shh", country: "Cyprus" }
-  ];
-
-  try {
-    const contestRef = collection(db, "contests");
-    const contestDocRef = doc(contestRef, contestId);
-
-    // Initialize the contest document
-    await setDoc(contestDocRef, { name: "Eurovision 2025 Semi Final 1" });
-
-    // Add contestants
-    for (const contestant of contestants) {
-      const contestantRef = doc(collection(contestDocRef, "contestants"), contestant.id.toString());
-      await setDoc(contestantRef, contestant);
-    }
-
-    console.log("✅ Eurovision 2025 Semi Final 1 initialized successfully in Firebase!");
-  } catch (error) {
-    console.error("🔥 Error initializing Eurovision 2025 Semi Final 1:", error);
-  }
-};
-
-initializeEuro2025SF1();
