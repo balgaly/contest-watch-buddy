@@ -56,5 +56,37 @@ export const initialContests = [
             { id: 14, name: "Marko Bošnjak – Poison Cake", country: "Croatia" },
             { id: 15, name: "Theo Evan – Shh", country: "Cyprus" }
         ]
+    },
+    {
+        id: "euro2025final",
+        name: "Eurovision 2025",
+        contestants: [
+            { id: 1, order: 1, country: "Norway", name: "Kyle Alessandro – Lighter" },
+            { id: 2, order: 2, country: "Luxembourg", name: "Laura Thorn – La Poupée Monte Le Son" },
+            { id: 3, order: 3, country: "Estonia", name: "Tommy Cash – Espresso Macchiato" },
+            { id: 4, order: 4, country: "Israel", name: "Yuval Raphael – New Day Will Rise" },
+            { id: 5, order: 5, country: "Lithuania", name: "Katarsis – Tavo Akys" },
+            { id: 6, order: 6, country: "Spain", name: "Melody – Esa Diva" },
+            { id: 7, order: 7, country: "Ukraine", name: "Ziferblat – Bird of Pray" },
+            { id: 8, order: 8, country: "United Kingdom", name: "Remember Monday – What The Hell Just Happened?" },
+            { id: 9, order: 9, country: "Austria", name: "JJ – Wasted Love" },
+            { id: 10, order: 10, country: "Iceland", name: "VÆB – RÓA" },
+            { id: 11, order: 11, country: "Latvia", name: "Tautumeitas – Bur Man Laimi" },
+            { id: 12, order: 12, country: "Netherlands", name: "Claude – C’est La Vie" },
+            { id: 13, order: 13, country: "Finland", name: "Erika Vikman – Ich Komme" },
+            { id: 14, order: 14, country: "Italy", name: "Lucio Corsi – Volevo Essere un Duro" },
+            { id: 15, order: 15, country: "Poland", name: "Justyna Steczkowska – Gaja" },
+            { id: 16, order: 16, country: "Germany", name: "Abor & Tynna – Baller" },
+            { id: 17, order: 17, country: "Greece", name: "Klavdia – Asteromata" },
+            { id: 18, order: 18, country: "Armenia", name: "Parg – Survivor" },
+            { id: 19, order: 19, country: "Switzerland", name: "Zoë Më – Voyage" },
+            { id: 20, order: 20, country: "Malta", name: "Miriana Conte – Serving" },
+            { id: 21, order: 21, country: "Portugal", name: "Napa – Deslocado" },
+            { id: 22, order: 22, country: "Denmark", name: "Sissal – Hallucination" },
+            { id: 23, order: 23, country: "Sweden", name: "KAJ – Bara Bada Bastu" },
+            { id: 24, order: 24, country: "France", name: "Louane – Maman" },
+            { id: 25, order: 25, country: "San Marino", name: "Gabry Ponte – Tutta l’Italia" },
+            { id: 26, order: 26, country: "Albania", name: "Shkodra Elektronike – Zjerm" }
+        ]
     }
 ];
