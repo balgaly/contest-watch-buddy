@@ -436,86 +436,69 @@ const App = () => {
     if (!currentUser) return;
     console.log(`Updating score: Contestant ${contestantId}, Criterion ${criterionId}, Value ${value}`);
 
-    // First update local state
+    // Compute the new value using a functional state update
+    let computedContestantScores = null;
     setAllScores(prev => {
-        const userScores = prev[currentUser.id] || {};
-        const contestScores = userScores[activeContestId] || {};
-        const contestantScores = contestScores[contestantId.toString()] || {};
-        const updatedScores = {
-            ...contestantScores,
-            [criterionId]: parseFloat(value) || 0,
-            voterName: currentUser.name,
-            voterIsAdmin: currentUser.isAdmin
-        };
-        
-        // Calculate overall score if all criteria are present
-        let overall = 0;
-        let hasAllScores = true;
-        CRITERIA.forEach(criterion => {
-            if (updatedScores[criterion.id] !== undefined) {
-                overall += parseFloat(updatedScores[criterion.id]) * criterion.weight;
-            } else {
-                hasAllScores = false;
-            }
-        });
-        if (hasAllScores) {
-            updatedScores.overall = overall;
+      // Get previous user/contest scores
+      const userScores = { ...(prev[currentUser.id] || {}) };
+      const contestScores = { ...(userScores[activeContestId] || {}) };
+      const contestantKey = contestantId.toString();
+      const contestantScores = { ...(contestScores[contestantKey] || {}) };
+
+      // Merge new vote value and voter details
+      contestantScores[criterionId] = parseFloat(value) || 0;
+      contestantScores.voterName = currentUser.name;
+      contestantScores.voterIsAdmin = currentUser.isAdmin;
+
+      // Recalculate overall score based on CRITERIA and new values
+      let overall = 0;
+      let hasAllScores = true;
+      CRITERIA.forEach(criterion => {
+        if (contestantScores[criterion.id] !== undefined) {
+          overall += parseFloat(contestantScores[criterion.id]) * criterion.weight;
+        } else {
+          hasAllScores = false;
         }
-        
-        return {
-            ...prev,
-            [currentUser.id]: {
-                ...userScores,
-                [activeContestId]: {
-                    ...contestScores,
-                    [contestantId.toString()]: updatedScores
-                }
-            }
-        };
+      });
+      if (hasAllScores) {
+        contestantScores.overall = overall;
+      } else {
+        delete contestantScores.overall;
+      }
+
+      // Save the computed object to be used for Firestore update
+      computedContestantScores = { ...contestantScores };
+
+      // Update state
+      contestScores[contestantKey] = contestantScores;
+      userScores[activeContestId] = contestScores;
+      return { 
+        ...prev, 
+        [currentUser.id]: userScores 
+      };
     });
 
+    // Write the latest computed scores immediately to Firestore
     try {
-        // Get current scores from local state to ensure we have all criteria
-        const currentScores = allScores[currentUser.id]?.[activeContestId]?.[contestantId.toString()] || {};
-        const updatedScores = {
-            ...currentScores,
-            [criterionId]: parseFloat(value) || 0,
-            voterName: currentUser.name,
-            voterIsAdmin: currentUser.isAdmin,
-            updatedAt: new Date().toISOString()
-        };
+      const updatedScores = {
+        ...computedContestantScores,
+        updatedAt: new Date().toISOString()
+      };
 
-        // Calculate overall score if all criteria are present
-        let overall = 0;
-        let hasAllScores = true;
-        CRITERIA.forEach(criterion => {
-            const score = updatedScores[criterion.id];
-            if (score !== undefined) {
-                overall += parseFloat(score) * criterion.weight;
-            } else {
-                hasAllScores = false;
-            }
-        });
+      const scoreRef = doc(
+        db,
+        "contests",
+        activeContestId,
+        "contestants",
+        contestantId.toString(),
+        "scores",
+        currentUser.id
+      );
 
-        if (hasAllScores) {
-            updatedScores.overall = overall;
-        }
-
-        // Write complete score data to Firestore
-        const scoreRef = doc(
-            db,
-            "contests",
-            activeContestId,
-            "contestants",
-            contestantId.toString(),
-            "scores",
-            currentUser.id
-        );
-
-        await setDoc(scoreRef, updatedScores, { merge: true });
-        console.log("✅ Score updated in Firestore:", updatedScores);
+      await setDoc(scoreRef, updatedScores, { merge: true });
+      console.log("✅ Score updated in Firestore:", updatedScores);
     } catch (error) {
-        console.error("🔥 Error updating score in Firestore:", error);
+      console.error("🔥 Error updating score in Firestore:", error);
     }
   };
 
