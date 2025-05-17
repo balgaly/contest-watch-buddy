@@ -38,7 +38,10 @@ const countryCodeMap = {
     'Israel': 'IL',
     'Germany': 'DE',
     'Serbia': 'RS',
-    'Finland': 'FI'
+    'Finland': 'FI',
+    'Spain': 'ES',
+    'Switzerland': 'CH',
+    'Italy': 'IT'
 };
 
 const Results = ({ activeContest }) => {

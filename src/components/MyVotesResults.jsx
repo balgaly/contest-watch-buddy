@@ -9,7 +9,8 @@ const countryCodeMap = {
     'Australia': 'AU', 'Montenegro': 'ME', 'Ireland': 'IE', 'Latvia': 'LV', 'Armenia': 'AM',
     'Austria': 'AT', 'United Kingdom': 'GB', 'Greece': 'GR', 'Lithuania': 'LT', 'Malta': 'MT',
     'Georgia': 'GE', 'France': 'FR', 'Denmark': 'DK', 'Czechia': 'CZ', 'Luxembourg': 'LU',
-    'Israel': 'IL', 'Germany': 'DE', 'Serbia': 'RS', 'Finland': 'FI'
+    'Israel': 'IL', 'Germany': 'DE', 'Serbia': 'RS', 'Finland': 'FI', 'Spain': 'ES',
+    'Switzerland': 'CH', 'Italy': 'IT'
 };
 
 const MyVotesResults = ({ activeContest, allScores, currentUser }) => {
