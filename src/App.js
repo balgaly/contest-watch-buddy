@@ -9,11 +9,14 @@ import Results from './components/Results';
 import MyVotesResults from './components/MyVotesResults';
 import { collection, doc, setDoc, getDocs, deleteDoc, getDoc } from 'firebase/firestore';
 import { db } from './firebase/firebaseConfig';
+import LoadingSpinner from './components/LoadingSpinner';
+import './App.css';
 
 const App = () => {
   // App state
   const [page, setPage] = useState('login'); // 'login', 'session', 'userManagement', 'contestSelection', 'main'
   const [activeTab, setActiveTab] = useState('voting');
+  const [isLoadingScores, setIsLoadingScores] = useState(false);
 
   // Login state
   const [username, setUsername] = useState('');
@@ -34,9 +37,17 @@ const App = () => {
   const [activeContestId, setActiveContestId] = useState('euro2025sf2');
   const [currentContestant, setCurrentContestant] = useState(null);
   const [selectedContestant, setSelectedContestant] = useState(null);
+  const [loadingOperations, setLoadingOperations] = useState(0); // Track ongoing loading operations
   
   // Get active contest
   const activeContest = contests.find(c => c.id === activeContestId) || contests[0];
+
+  // Helper to track loading operations
+  const startLoading = () => setLoadingOperations(count => count + 1);
+  const finishLoading = () => setLoadingOperations(count => Math.max(0, count - 1));
+
+  // Loading indicator
+  const isLoading = loadingOperations > 0;
 
   // Load scores for active contest
   useEffect(() => {
@@ -44,6 +55,7 @@ const App = () => {
       if (!activeContestId) return;
       
       try {
+        startLoading();
         console.log("📡 Fetching scores for contest:", activeContestId);
         const scoresData = {};
         const contestantsRef = collection(db, "contests", activeContestId, "contestants");
@@ -75,6 +87,8 @@ const App = () => {
 
       } catch (error) {
         console.error("🔥 Error fetching scores:", error);
+      } finally {
+        finishLoading();
       }
     };
 
@@ -87,6 +101,7 @@ const App = () => {
       if (!currentUser) return;
       
       try {
+        startLoading();
         console.log("📡 Fetching all scores for user:", currentUser.name);
         const userScores = {};
 
@@ -116,6 +131,8 @@ const App = () => {
         console.log("✅ User scores fetched successfully:", userScores);
       } catch (error) {
         console.error("🔥 Error fetching user scores:", error);
+      } finally {
+        finishLoading();
       }
     };
 
@@ -582,8 +599,15 @@ const App = () => {
   if (page === 'main') {
     return (
       <div className="min-h-screen bg-cyan-50 p-4">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto relative">
           <header className="mb-6">
+            {isLoading && (
+              <div className="fixed inset-x-0 top-0 p-4 bg-white/80 backdrop-blur-sm shadow-lg z-50">
+                <div className="max-w-6xl mx-auto">
+                  <LoadingSpinner />
+                </div>
+              </div>
+            )}
             <div className="flex flex-col space-y-4">
               {/* Contest Info & User Info */}
               <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
@@ -634,46 +658,62 @@ const App = () => {
               {/* Tab Navigation */}
               <div className="flex flex-wrap gap-2">
                 {!activeContest?.closed && (
-                  <button onClick={() => setActiveTab('voting')} className={`px-4 py-2 rounded ${activeTab === 'voting' ? 'bg-cyan-600 text-white' : 'bg-gray-200'}`}>
+                  <button 
+                    onClick={() => setActiveTab('voting')} 
+                    disabled={isLoading}
+                    className={`px-4 py-2 rounded ${activeTab === 'voting' ? 'bg-cyan-600 text-white' : 'bg-gray-200'} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
                     Voting
                   </button>
                 )}
-                <button onClick={() => setActiveTab('results')} className={`px-4 py-2 rounded ${activeTab === 'results' ? 'bg-cyan-600 text-white' : 'bg-gray-200'}`}>
+                <button 
+                  onClick={() => setActiveTab('results')} 
+                  disabled={isLoading}
+                  className={`px-4 py-2 rounded ${activeTab === 'results' ? 'bg-cyan-600 text-white' : 'bg-gray-200'} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
                   Results
                 </button>
-                <button onClick={() => setActiveTab('myvotes')} className={`px-4 py-2 rounded ${activeTab === 'myvotes' ? 'bg-cyan-600 text-white' : 'bg-gray-200'}`}>
+                <button 
+                  onClick={() => setActiveTab('myvotes')} 
+                  disabled={isLoading}
+                  className={`px-4 py-2 rounded ${activeTab === 'myvotes' ? 'bg-cyan-600 text-white' : 'bg-gray-200'} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
                   My Results
                 </button>
               </div>
             </div>
-          </header>
-          {activeTab === 'voting' && !activeContest?.closed ? (
-            <Voting
-              activeContest={activeContest}
-              currentContestant={currentContestant}
-              updateScore={updateScore}
-              getScore={getScore}
-              setCurrentContestant={setCurrentContestant}
-            />
-          ) : activeTab === 'results' ? (
-            <Results
-              activeContest={activeContest}
-              getAverageScore={getAverageScore}
-              getContestantRank={getContestantRank}
-              toggleContestantDetails={toggleContestantDetails}
-              selectedContestant={selectedContestant}
-              users={users}
-              allScores={allScores}
-              currentUser={currentUser}
-              handleEditVote={handleEditVote}
-            />
-          ) : (
-            <MyVotesResults
-              activeContest={activeContest}
-              allScores={allScores}
-              currentUser={currentUser}
-            />
-          )}
+          </header>          <div className={`transition-opacity duration-200 ${isLoading ? 'pointer-events-none opacity-50' : ''}`}>
+            {activeTab === 'voting' && !activeContest?.closed ? (
+              <Voting
+                activeContest={activeContest}
+                currentContestant={currentContestant}
+                updateScore={updateScore}
+                getScore={getScore}
+                setCurrentContestant={setCurrentContestant}
+                isLoading={isLoading}
+              />
+            ) : activeTab === 'results' ? (
+              <Results
+                activeContest={activeContest}
+                getAverageScore={getAverageScore}
+                getContestantRank={getContestantRank}
+                toggleContestantDetails={toggleContestantDetails}
+                selectedContestant={selectedContestant}
+                users={users}
+                allScores={allScores}
+                currentUser={currentUser}
+                handleEditVote={handleEditVote}
+                isLoading={isLoading}
+              />
+            ) : (
+              <MyVotesResults
+                activeContest={activeContest}
+                allScores={allScores}
+                currentUser={currentUser}
+                isLoading={isLoading}
+              />
+            )}
+          </div>
         </div>
       </div>
     );
