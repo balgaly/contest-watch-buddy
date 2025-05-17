@@ -44,7 +44,7 @@ const countryCodeMap = {
     'Italy': 'IT'
 };
 
-const Results = ({ activeContest }) => {
+const Results = ({ activeContest, currentUser, handleDeleteVote }) => {
     const [allScores, setAllScores] = useState({});
     const [selectedContestant, setSelectedContestant] = useState(null);
     const [error, setError] = useState(null);
@@ -223,6 +223,14 @@ const Results = ({ activeContest }) => {
         return voterNames[userId] || userId;
     };
 
+    // Handle delete click (admin only)
+    const handleDelete = (e, userId, contestantId) => {
+        e.stopPropagation();
+        if (currentUser?.isAdmin && window.confirm("Are you sure you want to delete this vote?")) {
+            handleDeleteVote(userId, activeContest.id, contestantId);
+        }
+    };
+
     if (loading) {
         return (
             <div className="p-4">
@@ -350,6 +358,15 @@ const Results = ({ activeContest }) => {
                                                         >
                                                             {formatScore(scores.overall)}
                                                         </span>
+                                                        {currentUser?.isAdmin && (
+                                                            <button
+                                                                onClick={(e) => handleDelete(e, userId, contestant.id)}
+                                                                className="w-6 h-6 flex items-center justify-center text-lg text-red-500 hover:text-red-700 rounded-full hover:bg-red-50 transition-colors"
+                                                                title="Delete vote"
+                                                            >
+                                                                ×
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 ))}
                                         </div>
@@ -371,7 +388,7 @@ const Results = ({ activeContest }) => {
                         <thead>
                             <tr className="bg-gradient-to-r from-cyan-50 to-cyan-100">
                                 <th className="border border-cyan-200 px-2 sm:px-4 py-2 text-left text-cyan-900">Contestant</th>
-                                <th className="border border-cyan-200 px-2 sm:px-4 py-2 text-center text-cyan-900">Criteria Scores</th>
+                                <th className="border border-cyan-200 px-2 sm:px-4 py-2 text-center text-cyan-900">Individual Criteria</th>
                                 <th
                                     className="border border-cyan-200 px-2 sm:px-4 py-2 cursor-pointer hover:bg-cyan-100 text-center text-cyan-900 w-20"
                                     onClick={() => handleSort('overall')}
@@ -474,6 +491,15 @@ const Results = ({ activeContest }) => {
                                                                 >
                                                                     {formatScore(scores.overall)}
                                                                 </span>
+                                                                {currentUser?.isAdmin && (
+                                                                    <button
+                                                                        onClick={(e) => handleDelete(e, userId, contestant.id)}
+                                                                        className="w-6 h-6 flex items-center justify-center text-lg text-red-500 hover:text-red-700 rounded-full hover:bg-red-50 transition-colors"
+                                                                        title="Delete vote"
+                                                                    >
+                                                                        ×
+                                                                    </button>
+                                                                )}
                                                             </div>
                                                         ))}
                                                 </div>

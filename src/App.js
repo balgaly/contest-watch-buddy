@@ -373,6 +373,32 @@ const App = () => {
     }
   };
 
+  // Admin-only: delete a specific vote for any user and contestant
+  const handleDeleteVote = async (userId, contestId, contestantId) => {
+    if (!currentUser?.isAdmin) return;
+    try {
+      startLoading();
+      // Delete from Firestore
+      await deleteDoc(
+        doc(db, "contests", contestId, "contestants", contestantId.toString(), "scores", userId)
+      );
+      // Update local state
+      setAllScores(prev => {
+        const newScores = { ...prev };
+        if (newScores[userId]?.[contestId]?.[contestantId]) {
+          delete newScores[userId][contestId][contestantId];
+        }
+        return newScores;
+      });
+      console.log("✅ Vote deleted successfully");
+    } catch (error) {
+      console.error("🔥 Error deleting vote:", error);
+      alert("Failed to delete vote. Please try again.");
+    } finally {
+      finishLoading();
+    }
+  };
+
   const switchUser = (userId) => {
     const user = users.find(u => u.id === userId);
     if (user) {
@@ -693,8 +719,7 @@ const App = () => {
                 isLoading={isLoading}
               />
             ) : activeTab === 'results' ? (
-              <Results
-                activeContest={activeContest}
+              <Results                activeContest={activeContest}
                 getAverageScore={getAverageScore}
                 getContestantRank={getContestantRank}
                 toggleContestantDetails={toggleContestantDetails}
@@ -703,6 +728,7 @@ const App = () => {
                 allScores={allScores}
                 currentUser={currentUser}
                 handleEditVote={handleEditVote}
+                handleDeleteVote={handleDeleteVote}
                 isLoading={isLoading}
               />
             ) : (
