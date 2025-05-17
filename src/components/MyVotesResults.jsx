@@ -124,14 +124,16 @@ const MyVotesResults = ({ activeContest, allScores, currentUser }) => {
                         <div className="flex items-center justify-between px-2 py-1.5 min-h-[44px]">
                             <div className="flex items-center gap-2 flex-1 min-w-0">
                                 {contestant.country && countryCodeMap[contestant.country] && (
-                                    <ReactCountryFlag
-                                        countryCode={countryCodeMap[contestant.country]}
-                                        svg
-                                        style={{ width: '1.5em', height: '1.5em' }}
-                                        title={contestant.country}
-                                    />
+                                    <>
+                                        <ReactCountryFlag
+                                            countryCode={countryCodeMap[contestant.country]}
+                                            svg
+                                            style={{ width: '1.5em', height: '1.5em' }}
+                                            title={contestant.country}
+                                        />
+                                        <span className="font-medium text-cyan-900">{contestant.country}</span>
+                                    </>
                                 )}
-                                <span className="font-medium text-cyan-900 truncate">{contestant.name}</span>
                             </div>
                             <div className="flex items-center gap-2 flex-shrink-0">
                                 <div className="flex gap-1 mr-1">
@@ -172,14 +174,16 @@ const MyVotesResults = ({ activeContest, allScores, currentUser }) => {
                                 <td className="px-2 sm:px-4 py-2 border-x border-cyan-200">
                                     <div className="flex items-center gap-2">
                                         {contestant.country && countryCodeMap[contestant.country] && (
-                                            <ReactCountryFlag
-                                                countryCode={countryCodeMap[contestant.country]}
-                                                svg
-                                                style={{ width: '1.2em', height: '1.2em' }}
-                                                title={contestant.country}
-                                            />
+                                            <>
+                                                <ReactCountryFlag
+                                                    countryCode={countryCodeMap[contestant.country]}
+                                                    svg
+                                                    style={{ width: '1.2em', height: '1.2em' }}
+                                                    title={contestant.country}
+                                                />
+                                                <span className="font-medium text-cyan-900">{contestant.country}</span>
+                                            </>
                                         )}
-                                        <span className="font-medium text-cyan-900">{contestant.name}</span>
                                     </div>
                                 </td>
                                 <td className="px-2 sm:px-4 py-2 border-x border-cyan-200">

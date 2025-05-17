@@ -287,12 +287,15 @@ const Results = ({ activeContest }) => {
                                 <div className="flex items-center gap-2 flex-1 min-w-0">
                                     <span className={`flex-shrink-0 inline-flex w-5 h-5 rounded-full text-white text-sm items-center justify-center shadow-sm ${position === 1 ? 'bg-gradient-to-br from-amber-400 to-yellow-500' : position === 2 ? 'bg-gradient-to-br from-slate-300 to-slate-400' : position === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-700' : 'bg-gradient-to-br from-cyan-400 to-cyan-500'}`}>{position}</span>
                                     {contestant.country && countryCodeMap[contestant.country] && (
-                                        <ReactCountryFlag
-                                            countryCode={countryCodeMap[contestant.country]}
-                                            svg
-                                            style={{ width: '1.5em', height: '1.5em' }}
-                                            title={contestant.country}
-                                        />
+                                        <>
+                                            <ReactCountryFlag
+                                                countryCode={countryCodeMap[contestant.country]}
+                                                svg
+                                                style={{ width: '1.5em', height: '1.5em' }}
+                                                title={contestant.country}
+                                            />
+                                            <span className="font-medium text-cyan-900">{contestant.country}</span>
+                                        </>
                                     )}
                                 </div>
                                 <div className="flex items-center gap-2 flex-shrink-0">
@@ -388,15 +391,18 @@ const Results = ({ activeContest }) => {
                                             <div className="flex items-center gap-2">
                                                 <span className={`inline-flex w-5 h-5 rounded-full text-white text-sm items-center justify-center shadow-sm ${getContestantRank(contestant.id) === 1 ? 'bg-gradient-to-br from-amber-400 to-yellow-500' : getContestantRank(contestant.id) === 2 ? 'bg-gradient-to-br from-slate-300 to-slate-400' : getContestantRank(contestant.id) === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-700' : 'bg-gradient-to-br from-cyan-400 to-cyan-500'}`}>{getContestantRank(contestant.id)}</span>
                                                 {contestant.country && countryCodeMap[contestant.country] && (
-                                                    <ReactCountryFlag
-                                                        countryCode={countryCodeMap[contestant.country]}
-                                                        svg
-                                                        style={{
-                                                            width: '1.2em',
-                                                            height: '1.2em'
-                                                        }}
-                                                        title={contestant.country}
-                                                    />
+                                                    <>
+                                                        <ReactCountryFlag
+                                                            countryCode={countryCodeMap[contestant.country]}
+                                                            svg
+                                                            style={{
+                                                                width: '1.2em',
+                                                                height: '1.2em'
+                                                            }}
+                                                            title={contestant.country}
+                                                        />
+                                                        <span className="font-medium text-cyan-900">{contestant.country}</span>
+                                                    </>
                                                 )}
                                                 <span className="font-medium text-cyan-900">{contestant.name}</span>
                                             </div>
