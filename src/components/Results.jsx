@@ -1,375 +1,167 @@
-import React, { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
+import React, { useState } from "react";
 import { CRITERIA } from "../constants";
 import ReactCountryFlag from 'react-country-flag';
 
 const countryCodeMap = {
-    'Iceland': 'IS',
-    'Poland': 'PL',
-    'Slovenia': 'SI',
-    'Estonia': 'EE',
-    'Ukraine': 'UA',
-    'Sweden': 'SE',
-    'Portugal': 'PT',
-    'Norway': 'NO',
-    'Belgium': 'BE',
-    'Azerbaijan': 'AZ',
-    'San Marino': 'SM',
-    'Albania': 'AL',
-    'Netherlands': 'NL',
-    'Croatia': 'HR',
-    'Cyprus': 'CY',
-    'Australia': 'AU',
-    'Montenegro': 'ME',
-    'Ireland': 'IE',
-    'Latvia': 'LV',
-    'Armenia': 'AM',
-    'Austria': 'AT',
-    'United Kingdom': 'GB',
-    'Greece': 'GR',
-    'Lithuania': 'LT',
-    'Malta': 'MT',
-    'Georgia': 'GE',
-    'France': 'FR',
-    'Denmark': 'DK',
-    'Czechia': 'CZ',
-    'Luxembourg': 'LU',
-    'Israel': 'IL',
-    'Germany': 'DE',
-    'Serbia': 'RS',
-    'Finland': 'FI',
-    'Spain': 'ES',
-    'Switzerland': 'CH',
-    'Italy': 'IT'
+    'Iceland': 'IS', 'Poland': 'PL', 'Slovenia': 'SI', 'Estonia': 'EE', 'Ukraine': 'UA',
+    'Sweden': 'SE', 'Portugal': 'PT', 'Norway': 'NO', 'Belgium': 'BE', 'Azerbaijan': 'AZ',
+    'San Marino': 'SM', 'Albania': 'AL', 'Netherlands': 'NL', 'Croatia': 'HR', 'Cyprus': 'CY',
+    'Australia': 'AU', 'Montenegro': 'ME', 'Ireland': 'IE', 'Latvia': 'LV', 'Armenia': 'AM',
+    'Austria': 'AT', 'United Kingdom': 'GB', 'Greece': 'GR', 'Lithuania': 'LT', 'Malta': 'MT',
+    'Georgia': 'GE', 'France': 'FR', 'Denmark': 'DK', 'Czechia': 'CZ', 'Luxembourg': 'LU',
+    'Israel': 'IL', 'Germany': 'DE', 'Serbia': 'RS', 'Finland': 'FI', 'Spain': 'ES',
+    'Switzerland': 'CH', 'Italy': 'IT'
 };
 
-const Results = ({ activeContest, currentUser, handleDeleteVote }) => {
-    const [allScores, setAllScores] = useState({});
+const RankBadge = ({ rank }) => {
+    const cls = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-default';
+    return <span className={`inline-flex w-6 h-6 rounded-full text-[11px] font-bold items-center justify-center flex-shrink-0 ${cls}`}>{rank}</span>;
+};
+
+const scoreColor = (score) => {
+    const n = parseFloat(score);
+    if (isNaN(n)) return 'text-white/20';
+    if (n >= 8) return 'text-esc-gold';
+    if (n >= 6) return 'text-esc-blue';
+    return 'text-white/50';
+};
+
+const Results = ({ activeContest, currentUser, handleDeleteVote, allScores, memberIds }) => {
     const [selectedContestant, setSelectedContestant] = useState(null);
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [voterNames, setVoterNames] = useState({});
     const [sortConfig, setSortConfig] = useState({ key: 'overall', direction: 'desc' });
 
-    // Fetch scores from Firestore
-    const fetchScores = async () => {
-        if (!activeContest) {
-            console.log("❌ No active contest available");
-            return;
-        }
-        setLoading(true);
-        setError(null);
-
-        try {
-            console.log("📡 Fetching scores for contest:", activeContest.id);
-            const scoresData = {};
-            const contestantsRef = collection(db, "contests", activeContest.id, "contestants");
-            const contestantsSnapshot = await getDocs(contestantsRef);
-            console.log("Found contestants:", contestantsSnapshot.docs.length);
-
-            // Parallelize fetching scores for all contestants
-            await Promise.all(contestantsSnapshot.docs.map(async (contestantDoc) => {
-                const contestantId = contestantDoc.id;
-                scoresData[contestantId] = {};
-                const scoresRef = collection(db, "contests", activeContest.id, "contestants", contestantId, "scores");
-                const scoresSnapshot = await getDocs(scoresRef);
-                scoresSnapshot.forEach((scoreDoc) => {
-                    const scoreData = scoreDoc.data();
-                    scoresData[contestantId][scoreDoc.id] = scoreData;
-                });
-            }));
-
-            setAllScores(scoresData);
-        } catch (error) {
-            console.error("🔥 Error fetching scores:", error);
-            setError("Unable to load scores. Please check your connection and permissions.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Fetch voter names from Firestore
-    const fetchVoterNames = async () => {
-        const voterNames = {};
-        try {
-            console.log("📡 Fetching voter names from Firestore...");
-            const usersSnapshot = await getDocs(collection(db, "users"));
-            if (usersSnapshot.empty) {
-                console.warn("⚠️ No users found in Firestore.");
-            }
-            usersSnapshot.forEach((doc) => {
-                const userData = doc.data();
-                if (userData && userData.name) {
-                    voterNames[doc.id] = userData.name;
-                } else {
-                    console.warn(`⚠️ Missing name for user ID: ${doc.id}`);
-                }
-            });
-        } catch (error) {
-            console.error("🔥 Error fetching voter names:", error);
-        }
-        return voterNames;
-    };
-
-    // Update the voter names when scores change
-    useEffect(() => {
-        const loadVoterNames = async () => {
-            try {
-                const names = {};
-                // Get names from scores data since it's more reliable
-                Object.entries(allScores).forEach(([contestantId, contestantScores]) => {
-                    Object.entries(contestantScores).forEach(([userId, scoreData]) => {
-                        if (scoreData.voterName) {
-                            names[userId] = scoreData.voterName;
-                        }
-                    });
-                });
-                setVoterNames(names);
-            } catch (error) {
-                console.error("Error loading voter names:", error);
-            }
-        };
-        loadVoterNames();
-    }, [allScores]);
-
-    useEffect(() => {
-        fetchScores();
-    }, [activeContest]);    const formatScore = (score) => {
+    const fmt = (score) => {
         if (score === "-") return "-";
-        const numScore = parseFloat(score);
-        return Number.isInteger(numScore) ? numScore.toFixed(0) : numScore.toFixed(2);
+        const n = parseFloat(score);
+        return Number.isInteger(n) ? n.toFixed(0) : n.toFixed(1);
     };
 
-    // Get average score per criterion
-    const getAverageScore = (contestantId, criterionId) => {
-        let total = 0;
-        let count = 0;
-
-        Object.values(allScores[contestantId] || {}).forEach((userScores) => {
-            if (userScores[criterionId] !== undefined) {
-                total += parseFloat(userScores[criterionId]);
-                count++;
-            }
-        });
-
-        return count > 0 ? formatScore(total / count) : "-";
-    };
-
-    // Get overall average score for contestant
-    const getOverallScore = (contestantId) => {
-        let total = 0;
-        let count = 0;
-
-        Object.values(allScores[contestantId] || {}).forEach((userScores) => {
-            if (userScores.overall !== undefined) {
-                total += parseFloat(userScores.overall);
-                count++;
-            }
-        });
-
-        return count > 0 ? formatScore(total / count) : "-";
-    };
-
-    // Toggle detailed votes for a contestant
-    const toggleContestantDetails = (contestantId) => {
-        setSelectedContestant(selectedContestant === contestantId ? null : contestantId);
-    };
-
-    // Get contestant rank
-    const getContestantRank = (contestantId) => {
-        const sortedContestants = Object.keys(allScores).sort((a, b) => {
-            const overallScoreA = getOverallScore(a);
-            const overallScoreB = getOverallScore(b);
-            return overallScoreB - overallScoreA;
-        });
-        return sortedContestants.indexOf(contestantId) + 1;
-    };
-
-    // Function to handle sorting
-    const handleSort = (key) => {
-        setSortConfig((prevConfig) => {
-            if (prevConfig.key === key) {
-                // Toggle direction if the same column is clicked
-                return { key, direction: prevConfig.direction === 'asc' ? 'desc' : 'asc' };
-            }
-            return { key, direction: 'desc' }; // Default to descending
-        });
-    };
-
-    // Sort contestants based on sortConfig
-    const sortedContestants = [...activeContest.contestants].sort((a, b) => {
-        const getSortableScore = (score) => {
-            const parsed = parseFloat(score);
-            return isNaN(parsed) ? 0 : parsed;
-        };
-        if (sortConfig.key === 'overall') {
-            const scoreA = getSortableScore(getOverallScore(a.id));
-            const scoreB = getSortableScore(getOverallScore(b.id));
-            return sortConfig.direction === 'asc' ? scoreA - scoreB : scoreB - scoreA;
-        } else {
-            const scoreA = getSortableScore(getAverageScore(a.id, sortConfig.key));
-            const scoreB = getSortableScore(getAverageScore(b.id, sortConfig.key));
-            return sortConfig.direction === 'asc' ? scoreA - scoreB : scoreB - scoreA;
+    const getFilteredScores = (cid) => {
+        const scores = allScores[cid] || {};
+        if (!memberIds) return scores;
+        const out = {};
+        for (const [uid, data] of Object.entries(scores)) {
+            if (memberIds.includes(uid)) out[uid] = data;
         }
+        return out;
+    };
+
+    const getAvg = (cid, key) => {
+        let t = 0, c = 0;
+        Object.values(getFilteredScores(cid)).forEach(s => {
+            if (s[key] !== undefined) { t += parseFloat(s[key]); c++; }
+        });
+        return c > 0 ? fmt(t / c) : "-";
+    };
+
+    const getOverall = (cid) => getAvg(cid, 'overall');
+
+    const getRank = (cid) => {
+        const sorted = activeContest.contestants
+            .map(c => ({ id: c.id, s: parseFloat(getOverall(c.id)) || 0 }))
+            .sort((a, b) => b.s - a.s);
+        return sorted.findIndex(c => c.id === cid) + 1;
+    };
+
+    const handleSort = (key) => setSortConfig(p => p.key === key ? { key, direction: p.direction === 'asc' ? 'desc' : 'asc' } : { key, direction: 'desc' });
+
+    const handleDelete = (e, uid, cid) => {
+        e.stopPropagation();
+        if (currentUser?.isAdmin && window.confirm("Delete this vote?")) handleDeleteVote(uid, activeContest.id, cid);
+    };
+
+    if (!activeContest?.contestants?.length) return <div className="p-4 text-center text-white/30 text-sm">No contestants.</div>;
+    if (!allScores || Object.keys(allScores).length === 0) return <div className="p-4 text-center text-white/30 text-sm">No scores yet.</div>;
+
+    const sorted = [...activeContest.contestants].sort((a, b) => {
+        const getValue = c => {
+            const s = sortConfig.key === 'overall' ? getOverall(c.id) : getAvg(c.id, sortConfig.key);
+            const p = parseFloat(s);
+            return isNaN(p) ? null : p;
+        };
+        const sa = getValue(a);
+        const sb = getValue(b);
+        // Push unvoted entries to bottom regardless of sort direction
+        if (sa === null && sb === null) return 0;
+        if (sa === null) return 1;
+        if (sb === null) return -1;
+        return sortConfig.direction === 'asc' ? sa - sb : sb - sa;
     });
 
-    const getVoterName = (userId, scores) => {
-        // First try to get the name from the score data
-        if (scores.voterName) {
-            return scores.voterName;
-        }
-        // Fall back to the voter names state
-        return voterNames[userId] || userId;
-    };
-
-    // Handle delete click (admin only)
-    const handleDelete = (e, userId, contestantId) => {
-        e.stopPropagation();
-        if (currentUser?.isAdmin && window.confirm("Are you sure you want to delete this vote?")) {
-            handleDeleteVote(userId, activeContest.id, contestantId);
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className="p-4">
-                <h2 className="text-xl font-bold mb-4">Results</h2>
-                <p>Loading scores...</p>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="p-4">
-                <h2 className="text-xl font-bold mb-4">Results</h2>
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    <p>{error}</p>
-                    <button 
-                        onClick={fetchScores}
-                        className="mt-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                    >
-                        Try Again
+    return (
+        <div className="max-w-xl mx-auto pb-4">
+            {/* Sort chips */}
+            <div className="flex items-center gap-1.5 mb-3 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
+                <span className="text-[10px] text-white/15 uppercase tracking-wider flex-shrink-0 mr-1">Sort</span>
+                {[{ key: 'overall', label: 'Overall' }, ...CRITERIA.map(c => ({ key: c.id, label: c.label.split(' ')[0] }))].map(s => (
+                    <button key={s.key} onClick={() => handleSort(s.key)}
+                        className={`text-[11px] px-2 py-1 rounded-md flex-shrink-0 transition-colors ${sortConfig.key === s.key ? 'bg-esc-accent/15 text-esc-accent-light' : 'bg-white/5 text-white/25'}`}>
+                        {s.label} {sortConfig.key === s.key && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                     </button>
-                </div>
+                ))}
             </div>
-        );
-    }
 
-    if (!activeContest || !Array.isArray(activeContest.contestants) || activeContest.contestants.length === 0) {
-        return (
-            <div className="p-4">
-                <h2 className="text-xl font-bold mb-4">Results</h2>
-                <p>No contestants available for this contest. Please check the contest data.</p>
-            </div>
-        );
-    }
-
-    if (!allScores || Object.keys(allScores).length === 0) {
-        return (
-            <div className="p-4">
-                <h2 className="text-xl font-bold mb-4">Results</h2>
-                <p>No scores available. Please ensure voting has been completed.</p>
-            </div>
-        );
-    }
-
-    // Mobile card view for results
-    const isMobile = window.innerWidth < 640;
-    if (isMobile) {
-        // Always sort by overall score, descending
-        const sortedByOverall = [...sortedContestants].sort((a, b) => {
-            const scoreA = parseFloat(getOverallScore(a.id));
-            const scoreB = parseFloat(getOverallScore(b.id));
-            return scoreB - scoreA;
-        });        return (
-            <div className="p-2">
-                {sortedByOverall.map((contestant, idx) => {
-                    const position = idx + 1;
+            <div className="space-y-1">
+                {sorted.map((contestant) => {
+                    const rank = getRank(contestant.id);
+                    const overall = getOverall(contestant.id);
                     const isOpen = selectedContestant === contestant.id;
-                    const overallScore = getOverallScore(contestant.id);
+                    const filtered = getFilteredScores(contestant.id);
+                    const voterCount = Object.keys(filtered).length;
+
                     return (
-                        <div key={contestant.id} className={`bg-gradient-to-r from-white to-cyan-50 rounded-lg shadow-md mb-2 flex flex-col border border-cyan-100 ${isOpen ? 'shadow-lg' : ''}`}>
-                            <div className="flex items-center justify-between px-2 py-1.5 min-h-[44px]" onClick={() => toggleContestantDetails(contestant.id)}>
-                                <div className="flex items-center gap-2 flex-1 min-w-0">
-                                    <span className={`flex-shrink-0 inline-flex w-5 h-5 rounded-full text-white text-sm items-center justify-center shadow-sm ${position === 1 ? 'bg-gradient-to-br from-amber-400 to-yellow-500' : position === 2 ? 'bg-gradient-to-br from-slate-300 to-slate-400' : position === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-700' : 'bg-gradient-to-br from-cyan-400 to-cyan-500'}`}>{position}</span>
-                                    {contestant.country && countryCodeMap[contestant.country] && (
-                                        <>
-                                            <ReactCountryFlag
-                                                countryCode={countryCodeMap[contestant.country]}
-                                                svg
-                                                style={{ width: '1.5em', height: '1.5em' }}
-                                                title={contestant.country}
-                                            />
-                                            <span className="font-medium text-cyan-900">{contestant.country}</span>
-                                        </>
-                                    )}
+                        <div key={contestant.id} className={`glass rounded-xl overflow-hidden transition-all ${isOpen ? 'ring-1 ring-esc-accent/20' : ''}`}>
+                            <div className="p-2.5 flex items-center gap-2 cursor-pointer hover:bg-white/[0.03] transition-colors active:bg-white/[0.06]"
+                                onClick={() => setSelectedContestant(isOpen ? null : contestant.id)} style={{ minHeight: 48 }}>
+                                <RankBadge rank={rank} />
+                                {contestant.country && countryCodeMap[contestant.country] && (
+                                    <ReactCountryFlag countryCode={countryCodeMap[contestant.country]} svg style={{ width: '1.2em', height: '1.2em' }} title={contestant.country} />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                    <span className="font-medium text-white text-sm truncate block">{contestant.country || contestant.name}</span>
+                                    {voterCount > 0 && <span className="text-[10px] text-white/15">{voterCount} vote{voterCount !== 1 ? 's' : ''}</span>}
                                 </div>
-                                <div className="flex items-center gap-2 flex-shrink-0">
-                                    {/* Criteria scores as fixed-width pills for alignment */}
-                                    <div className="flex gap-1 mr-1">
-                                        {CRITERIA.map(criterion => (
-                                            <span key={criterion.id} className="w-7 px-0.5 py-0.5 rounded bg-cyan-100 text-cyan-700 text-xs font-semibold text-center" title={criterion.label}>
-                                                {formatScore(getAverageScore(contestant.id, criterion.id))}
-                                            </span>
-                                        ))}
-                                    </div>
-                                    {/* Emphasized overall score, fixed width for alignment */}
-                                    <span className={`px-2 py-1 rounded font-extrabold text-[15px] shadow-sm border border-cyan-200 bg-white ${parseFloat(overallScore) >= 8 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : parseFloat(overallScore) >= 6 ? 'text-cyan-700' : 'text-cyan-800'} text-center block`}
-                                        style={{ width: 44 }}
-                                    >
-                                        {overallScore}
-                                    </span>
-                                    <button
-                                        className={`w-6 h-6 flex items-center justify-center rounded-full border border-cyan-200 bg-cyan-50 text-cyan-600 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-300 transition-all duration-200 ${isOpen ? 'rotate-180 bg-cyan-100' : ''}`}
-                                        aria-label={isOpen ? 'Hide Details' : 'Show Details'}
-                                    >
-                                        <svg className="w-4 h-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path d="M19 9l-7 7-7-7"></path>
-                                        </svg>
-                                    </button>
+                                <div className="flex gap-1 mr-1">
+                                    {CRITERIA.map(c => (
+                                        <span key={c.id} className="w-6 text-center text-[10px] text-white/25 tabular-nums hidden sm:inline-block">{fmt(getAvg(contestant.id, c.id))}</span>
+                                    ))}
                                 </div>
+                                <span className={`font-bold text-sm tabular-nums min-w-[2rem] text-right ${scoreColor(overall)}`}>{overall}</span>
+                                <svg className={`w-3.5 h-3.5 text-white/10 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                </svg>
                             </div>
+
                             {isOpen && (
-                                <div className="px-2 py-1.5 border-t border-cyan-100 bg-white bg-opacity-60">
-                                    <div className="text-xs">
-                                        <div className="space-y-1">
-                                            {Object.entries(allScores[contestant.id] || {})
-                                                .sort((a, b) => {
-                                                    const scoreA = parseFloat(a[1].overall);
-                                                    const scoreB = parseFloat(b[1].overall);
-                                                    return scoreB - scoreA;
-                                                })
-                                                .map(([userId, scores]) => (
-                                                    <div key={userId} className="flex items-center gap-1.5 hover:bg-cyan-50 p-1 rounded transition-colors">
-                                                        <span className={`${scores.voterIsAdmin ? "font-medium text-cyan-900" : "text-cyan-800"} flex-1`}>
-                                                            {getVoterName(userId, scores)}
-                                                        </span>
-                                                        <div className="flex gap-1 mr-1">
-                                                            {CRITERIA.map(criterion => (
-                                                                <span key={criterion.id} className="w-7 px-0.5 py-0.5 rounded bg-cyan-100 text-cyan-700 text-xs font-semibold text-center" title={criterion.label}>
-                                                                    {formatScore(scores[criterion.id])}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                        <span className={`px-2 py-1 rounded font-extrabold text-[15px] shadow-sm border border-cyan-200 bg-white ${parseFloat(scores.overall) >= 8 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : parseFloat(scores.overall) >= 6 ? 'text-cyan-700' : 'text-cyan-800'} text-center block`}
-                                                            style={{ width: 44 }}
-                                                        >
-                                                            {formatScore(scores.overall)}
-                                                        </span>
-                                                        {currentUser?.isAdmin && (
-                                                            <button
-                                                                onClick={(e) => handleDelete(e, userId, contestant.id)}
-                                                                className="w-6 h-6 flex items-center justify-center text-lg text-red-500 hover:text-red-700 rounded-full hover:bg-red-50 transition-colors"
-                                                                title="Delete vote"
-                                                            >
-                                                                ×
-                                                            </button>
+                                <div className="border-t border-white/5 p-3 animate-slide-up">
+                                    <div className="flex items-center gap-2 mb-2 text-[9px] text-white/15 uppercase tracking-wider">
+                                        <span className="flex-1">Voter</span>
+                                        {CRITERIA.map(c => <span key={c.id} className="w-7 text-center">{c.label.substring(0, 3)}</span>)}
+                                        <span className="w-9 text-center">Total</span>
+                                        {currentUser?.isAdmin && <span className="w-5" />}
+                                    </div>
+                                    <div className="space-y-0.5">
+                                        {Object.entries(filtered)
+                                            .sort((a, b) => (parseFloat(b[1].overall) || 0) - (parseFloat(a[1].overall) || 0))
+                                            .map(([uid, scores]) => (
+                                                <div key={uid} className="flex items-center gap-2 py-1.5 px-1 rounded-md hover:bg-white/[0.03] transition-colors">
+                                                    <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                                                        {scores.voterPhotoURL ? (
+                                                            <img src={scores.voterPhotoURL} alt="" className="w-4 h-4 rounded-full flex-shrink-0" referrerPolicy="no-referrer" />
+                                                        ) : (
+                                                            <div className="w-4 h-4 rounded-full bg-esc-surface flex items-center justify-center text-[8px] text-white/25 flex-shrink-0">{(scores.voterName || uid)?.[0]}</div>
                                                         )}
+                                                        <span className="text-[11px] text-white/50 truncate">{scores.voterName || uid}</span>
                                                     </div>
-                                                ))}
-                                        </div>
+                                                    {CRITERIA.map(c => <span key={c.id} className="w-7 text-center text-[11px] text-white/30 tabular-nums">{fmt(scores[c.id])}</span>)}
+                                                    <span className={`w-9 text-center text-[11px] font-semibold tabular-nums ${scoreColor(scores.overall)}`}>{fmt(scores.overall)}</span>
+                                                    {currentUser?.isAdmin && (
+                                                        <button onClick={(e) => handleDelete(e, uid, contestant.id)} className="w-5 h-5 flex items-center justify-center text-red-400/30 hover:text-red-400 rounded transition-colors">
+                                                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ))}
                                     </div>
                                 </div>
                             )}
@@ -377,141 +169,6 @@ const Results = ({ activeContest, currentUser, handleDeleteVote }) => {
                     );
                 })}
             </div>
-        );
-    }    return (
-        <div className="p-2 sm:p-4">
-            {Object.keys(allScores).length === 0 ? (
-                <p>No results available.</p>
-            ) : (
-                <div className="overflow-x-auto w-full">
-                    <table className="min-w-[600px] w-full border-collapse text-xs sm:text-sm">
-                        <thead>
-                            <tr className="bg-gradient-to-r from-cyan-50 to-cyan-100">
-                                <th className="border border-cyan-200 px-2 sm:px-4 py-2 text-left text-cyan-900">Contestant</th>
-                                <th className="border border-cyan-200 px-2 sm:px-4 py-2 text-center text-cyan-900">Individual Criteria</th>
-                                <th
-                                    className="border border-cyan-200 px-2 sm:px-4 py-2 cursor-pointer hover:bg-cyan-100 text-center text-cyan-900 w-20"
-                                    onClick={() => handleSort('overall')}
-                                >
-                                    Overall {sortConfig.key === 'overall' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {sortedContestants.map((contestant) => (
-                                <React.Fragment key={contestant.id}>
-                                    <tr
-                                        className={`border-b border-cyan-100 hover:bg-cyan-50 cursor-pointer transition-colors ${selectedContestant === contestant.id ? 'bg-cyan-50' : 'bg-white'}`}
-                                        onClick={() => toggleContestantDetails(contestant.id)}
-                                    >
-                                        <td className="px-2 sm:px-4 py-2 border-x border-cyan-200">
-                                            <div className="flex items-center gap-2">
-                                                <span className={`inline-flex w-5 h-5 rounded-full text-white text-sm items-center justify-center shadow-sm ${getContestantRank(contestant.id) === 1 ? 'bg-gradient-to-br from-amber-400 to-yellow-500' : getContestantRank(contestant.id) === 2 ? 'bg-gradient-to-br from-slate-300 to-slate-400' : getContestantRank(contestant.id) === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-700' : 'bg-gradient-to-br from-cyan-400 to-cyan-500'}`}>{getContestantRank(contestant.id)}</span>
-                                                {contestant.country && countryCodeMap[contestant.country] && (
-                                                    <>
-                                                        <ReactCountryFlag
-                                                            countryCode={countryCodeMap[contestant.country]}
-                                                            svg
-                                                            style={{
-                                                                width: '1.2em',
-                                                                height: '1.2em'
-                                                            }}
-                                                            title={contestant.country}
-                                                        />
-                                                        <span className="font-medium text-cyan-900">{contestant.country}</span>
-                                                    </>
-                                                )}
-                                                <span className="font-medium text-cyan-900">{contestant.name}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-2 sm:px-4 py-2 border-x border-cyan-200">
-                                            <div className="flex justify-center gap-1">
-                                                {CRITERIA.map((criterion) => (
-                                                    <span
-                                                        key={criterion.id}
-                                                        className="w-7 px-0.5 py-0.5 rounded bg-cyan-100 text-cyan-700 text-xs font-semibold text-center"
-                                                        title={criterion.label}
-                                                    >
-                                                        {getAverageScore(contestant.id, criterion.id)}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </td>
-                                        <td className="px-2 sm:px-4 py-2 text-center font-bold border-x border-cyan-200">
-                                            <span
-                                                className={`px-2 py-1 rounded font-extrabold text-[15px] shadow-sm border border-cyan-200 bg-white ${parseFloat(getOverallScore(contestant.id)) >= 8 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : parseFloat(getOverallScore(contestant.id)) >= 6 ? 'text-cyan-700' : 'text-cyan-800'} text-center block`}
-                                                style={{ width: 44 }}
-                                            >
-                                                {getOverallScore(contestant.id)}
-                                            </span>
-                                        </td>
-                                    </tr>
-
-                                    {/* Detailed Individual Scores */}
-                                    {selectedContestant === contestant.id && (
-                                        <tr>
-                                            <td colSpan={3} className="bg-cyan-50 p-2 sm:p-4 border border-cyan-200">
-                                                <h3 className="font-medium text-cyan-900 mb-2">
-                                                    {contestant.country && countryCodeMap[contestant.country] && (
-                                                        <ReactCountryFlag
-                                                            countryCode={countryCodeMap[contestant.country]}
-                                                            svg
-                                                            style={{
-                                                                width: '1.2em',
-                                                                height: '1.2em',
-                                                                marginRight: '0.5em',
-                                                                verticalAlign: 'middle'
-                                                            }}
-                                                            title={contestant.country}
-                                                        />
-                                                    )}
-                                                    Individual Scores for {contestant.name}
-                                                </h3>
-                                                <div className="space-y-1">
-                                                    {Object.entries(allScores[contestant.id] || {})
-                                                        .sort((a, b) => {
-                                                            const scoreA = parseFloat(a[1].overall);
-                                                            const scoreB = parseFloat(b[1].overall);
-                                                            return scoreB - scoreA;
-                                                        })
-                                                        .map(([userId, scores]) => (
-                                                            <div key={userId} className="flex items-center gap-1.5 hover:bg-cyan-50 p-1 rounded transition-colors">
-                                                                <span className={scores.voterIsAdmin ? "font-medium text-cyan-900" : "text-cyan-800"}>
-                                                                    {getVoterName(userId, scores)}
-                                                                </span>
-                                                                <div className="flex gap-1 mr-1">
-                                                                    {CRITERIA.map(criterion => (
-                                                                        <span key={criterion.id} className="w-7 px-0.5 py-0.5 rounded bg-cyan-100 text-cyan-700 text-xs font-semibold text-center" title={criterion.label}>
-                                                                            {formatScore(scores[criterion.id])}
-                                                                        </span>
-                                                                    ))}
-                                                                </div>
-                                                                <span className={`px-2 py-1 rounded font-extrabold text-[15px] shadow-sm border border-cyan-200 bg-white ${parseFloat(scores.overall) >= 8 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : parseFloat(scores.overall) >= 6 ? 'text-cyan-700' : 'text-cyan-800'} text-center block`}
-                                                                    style={{ width: 44 }}
-                                                                >
-                                                                    {formatScore(scores.overall)}
-                                                                </span>
-                                                                {currentUser?.isAdmin && (
-                                                                    <button
-                                                                        onClick={(e) => handleDelete(e, userId, contestant.id)}
-                                                                        className="w-6 h-6 flex items-center justify-center text-lg text-red-500 hover:text-red-700 rounded-full hover:bg-red-50 transition-colors"
-                                                                        title="Delete vote"
-                                                                    >
-                                                                        ×
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                        ))}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
-                                </React.Fragment>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
         </div>
     );
 };
