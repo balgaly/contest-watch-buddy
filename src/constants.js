@@ -1,4 +1,4 @@
-export const ADMIN_PASSWORD = "melody2025";
+export const ADMIN_EMAIL = 'balgaly@gmail.com';
 
 export const CRITERIA = [
     { id: "songQuality", label: "Song Quality", weight: 0.4, description: "How good is the composition, melody, and lyrics of the song" },
@@ -89,4 +89,24 @@ export const initialContests = [
             { id: 26, order: 26, country: "Albania", name: "Shkodra Elektronike – Zjerm" }
         ]
     }
+];
+
+export const COUNTRY_CODES = {
+  'Iceland': 'IS', 'Poland': 'PL', 'Slovenia': 'SI', 'Estonia': 'EE', 'Ukraine': 'UA',
+  'Sweden': 'SE', 'Portugal': 'PT', 'Norway': 'NO', 'Belgium': 'BE', 'Azerbaijan': 'AZ',
+  'San Marino': 'SM', 'Albania': 'AL', 'Netherlands': 'NL', 'Croatia': 'HR', 'Cyprus': 'CY',
+  'Australia': 'AU', 'Montenegro': 'ME', 'Ireland': 'IE', 'Latvia': 'LV', 'Armenia': 'AM',
+  'Austria': 'AT', 'United Kingdom': 'GB', 'Greece': 'GR', 'Lithuania': 'LT', 'Malta': 'MT',
+  'Georgia': 'GE', 'France': 'FR', 'Denmark': 'DK', 'Czechia': 'CZ', 'Luxembourg': 'LU',
+  'Israel': 'IL', 'Germany': 'DE', 'Serbia': 'RS', 'Finland': 'FI', 'Spain': 'ES',
+  'Switzerland': 'CH', 'Italy': 'IT',
+};
+
+export const EMOJI_REACTIONS = [
+  { id: 'fire', emoji: '\u{1F525}', label: 'React with fire' },
+  { id: 'heart_eyes', emoji: '\u{1F60D}', label: 'React with heart eyes' },
+  { id: 'skull', emoji: '\u{1F480}', label: 'React with skull' },
+  { id: 'mic', emoji: '\u{1F3A4}', label: 'React with microphone' },
+  { id: 'clap', emoji: '\u{1F44F}', label: 'React with clap' },
+  { id: 'grimace', emoji: '\u{1F62C}', label: 'React with grimace' },
 ];

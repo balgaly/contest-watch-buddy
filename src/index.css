@@ -2,16 +2,254 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ============================================
+   THEME TOKENS
+   ============================================ */
+:root {
+  --bg: #0a0a0a;
+  --bg2: #12121f;
+  --surface: rgba(255,255,255,0.03);
+  --surface-hover: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.06);
+  --text: #ffffff;
+  --text2: rgba(255,255,255,0.55);
+  --text3: rgba(255,255,255,0.35);
+  --pink: #ff2d87;
+  --violet: #7c3aed;
+  --cyan: #06b6d4;
+  --gold: #fbbf24;
+  --gradient: linear-gradient(90deg, #ff2d87, #7c3aed, #06b6d4);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+[data-theme="light"] {
+  --bg: #f0ece6;
+  --bg2: #e8e4dd;
+  --surface: rgba(0,0,0,0.03);
+  --surface-hover: rgba(0,0,0,0.06);
+  --border: rgba(0,0,0,0.08);
+  --text: #1a1a2e;
+  --text2: rgba(0,0,0,0.55);
+  --text3: rgba(0,0,0,0.35);
+  --pink: #ff2d87;
+  --violet: #7c3aed;
+  --cyan: #06b6d4;
+  --gold: #d4a017;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f0ece6;
+    --bg2: #e8e4dd;
+    --surface: rgba(0,0,0,0.03);
+    --surface-hover: rgba(0,0,0,0.06);
+    --border: rgba(0,0,0,0.08);
+    --text: #1a1a2e;
+    --text2: rgba(0,0,0,0.55);
+    --text3: rgba(0,0,0,0.35);
+    --gold: #d4a017;
+  }
+}
+
+/* ============================================
+   BASE
+   ============================================ */
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Noise texture overlay */
+.noise-bg {
+  position: relative;
+}
+.noise-bg::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================
+   DIAGONAL DIVIDER
+   ============================================ */
+.divider-gradient {
+  height: 4px;
+  background: var(--gradient);
+  transform: skewY(-1deg);
+}
+
+/* ============================================
+   CONTESTANT ROW
+   ============================================ */
+.contestant-row {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  min-height: 56px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.contestant-row:nth-child(odd) { background: var(--surface); }
+.contestant-row:hover { background: var(--surface-hover); }
+
+/* Voted left-edge accent */
+.contestant-row.voted::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--pink);
+}
+
+/* ============================================
+   RANK COLORS
+   ============================================ */
+.rank-gold { color: var(--gold); }
+.rank-silver { color: #94a3b8; }
+.rank-bronze { color: #d97706; }
+.rank-dim { color: var(--text3); }
+
+/* Score tiers */
+.score-high { color: var(--cyan); }
+.score-mid { color: var(--gold); }
+.score-dim { color: var(--text3); }
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+/* Flash sweep for live updates */
+@keyframes flash-sweep {
+  0% { transform: translateX(-100%); opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+.flash-update::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(251,191,36,0.15), transparent);
+  animation: flash-sweep 0.8s ease-out;
+  pointer-events: none;
+}
+
+/* Score pulse */
+@keyframes score-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+.score-pulse { animation: score-pulse 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+
+/* Emoji float up */
+@keyframes emoji-float {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-40px); opacity: 0; }
+}
+.emoji-float { animation: emoji-float 1.5s ease-out forwards; }
+
+/* Emoji button press */
+@keyframes emoji-press {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+.emoji-press { animation: emoji-press 0.15s ease-out; }
+
+/* LIVE badge pulse */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+.live-pulse { animation: live-pulse 2s infinite; }
+
+/* Ticker scroll */
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-scroll { animation: ticker-scroll 30s linear infinite; }
+
+/* Slide up entry */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up {
+  animation: slide-up 0.25s ease-out both;
+}
+
+/* Voting panel expand */
+@keyframes panel-expand {
+  from { max-height: 0; opacity: 0; }
+  to { max-height: 300px; opacity: 1; }
+}
+.panel-expand {
+  animation: panel-expand 0.25s ease-out both;
+  overflow: hidden;
+}
+
+/* Loading bar shimmer */
+@keyframes shimmer-bar {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+.loading-bar {
+  overflow: hidden;
+  position: relative;
+}
+.loading-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,45,135,0.4), transparent);
+  animation: shimmer-bar 1.5s ease-in-out infinite;
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .flash-update::after,
+  .score-pulse,
+  .emoji-float,
+  .emoji-press,
+  .live-pulse,
+  .ticker-scroll,
+  .animate-slide-up,
+  .panel-expand {
+    animation: none !important;
+  }
+}
+
+/* ============================================
+   BOTTOM NAV SAFE AREA
+   ============================================ */
+.pb-safe {
+  padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,45,135,0.3); border-radius: 0; }
+
+select { color-scheme: dark; }
+[data-theme="light"] select { color-scheme: light; }
+
+/* Focus indicator */
+:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 2px;
 }
