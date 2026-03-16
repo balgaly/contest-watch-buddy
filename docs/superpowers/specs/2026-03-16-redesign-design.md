@@ -184,7 +184,7 @@ When any room member is actively voting (has submitted a score in the last 60 se
 - Sticky header: room name (Unbounded 600, 14px), contest name, room code button, members button, admin gear
 - All header buttons: minimum 44px tap target
 - Live ticker below header
-- Emoji reaction bar below ticker (or above bottom nav — test both positions)
+- Emoji reaction bar: pinned below the ticker, above the contestant list. (Not above bottom nav — it needs to be near the content being reacted to.)
 - Contestant list: rows as described in Layout System
 - Tapping a row expands the voting panel inline
 
@@ -240,7 +240,7 @@ When tapping a contestant to vote:
 |---------|-----------|----------|--------|
 | Row flash (score update) | Gold sweep left→right | 0.8s | ease-out |
 | Score number pulse | scale 1.0→1.1→1.0 | 0.3s | cubic-bezier(0.34,1.56,0.64,1) |
-| Rank reorder | translateY to new position | 0.3s | ease-in-out |
+| Rank reorder | FLIP technique (or `framer-motion` `layoutId`) | 0.3s | ease-in-out |
 | Emoji float | translateY 0→-40px, opacity 1→0 | 1.5s | ease-out |
 | Emoji button press | scale 1.0→1.2→1.0 | 0.15s | spring |
 | Voting panel expand | height 0→auto, opacity 0→1 | 0.25s | ease-out |
@@ -255,11 +255,13 @@ When tapping a contestant to vote:
 
 ### Existing: Score updates
 
-Already implemented via `useScores` hook polling. For real-time flash effects, switch to Firestore `onSnapshot` listeners instead of polling:
+Currently implemented via one-time `getDocs` fetch in `useScores` hook (not polling). For real-time flash effects, switch to `onSnapshot` listeners:
 
-- `onSnapshot` on `contests/{contestId}/contestants/{contestantId}/scores` collection
-- When a doc changes, trigger flash animation on the affected row
-- If score changes rank order, animate row position change
+- Use `collectionGroup('scores')` with a composite index filtering by `contestId` — avoids creating 26 separate listeners (one per contestant). Single listener for all score changes in the contest.
+- Requires Firestore composite index on the `scores` subcollection.
+- When a doc changes, trigger flash animation on the affected row.
+- If score changes rank order, animate row position change.
+- **Cost note:** A single `collectionGroup` listener fires on any score write across all contestants. For a room of 8 voters and 26 contestants, worst case is ~208 score documents. This is well within free tier limits.
 
 ### New: Emoji reactions
 
@@ -279,7 +281,7 @@ Document structure:
 
 - `onSnapshot` listener on reactions collection, filtered to last 30s
 - Each reaction renders as a floating emoji on the corresponding contestant row
-- Documents auto-expire via Firestore TTL or client-side filtering
+- Cleanup: client-side filtering only. Listener ignores reactions older than 30s. No server-side auto-delete (Firestore has no native TTL). Optionally add a Cloud Function on a daily schedule to purge old reactions if storage grows.
 - Rate limit: max 1 reaction per user per 2 seconds (client-side throttle)
 
 ### New: Live presence
@@ -296,6 +298,7 @@ New Firestore document: `rooms/{roomId}/presence/{userId}`
 - Updated on each score submission
 - Drives the `LIVE` badge visibility
 - Cleaned up when user leaves the room or after 60s inactivity
+- **Note:** Firestore is not ideal for presence (no `onDisconnect`). For v1, use simple Firestore writes on score submit + client-side 60s timeout check. If latency/cost becomes an issue, migrate to Firebase Realtime Database for presence only.
 
 ---
 
@@ -360,8 +363,13 @@ These marketing ideas are captured for implementation after the core redesign sh
 5. Pre-show predictions mode
 6. Elevated Global Scoreboard ("How does your room stack up?")
 7. Tagline revision (current: "Rate. Compare. Celebrate." → candidate: "Your squad. Your scores. Your Eurovision.")
-8. Tab label revision (Rate/Rankings/My Scores vs Vote/Results/My Votes)
-9. Trademark research on "Eurovision" in the product name
+8. Trademark research on "Eurovision" in the product name
+
+### Resolved decisions (not deferred)
+
+- **Tab labels:** Use `RATE` / `RANKINGS` / `MY SCORES` in this redesign. Component files keep their current names (`Voting.jsx`, `Results.jsx`, `MyVotesResults.jsx`) — only the displayed label text changes.
+- **Score color tiers:** Deliberately changed from existing code. New system: cyan (`--cyan`) for 8.0+, gold (`--gold`) for 5.0–7.9, dim (`--text3`) for unvoted. This replaces the old gold-for-high / blue-for-mid scheme.
+- **`countryCodeMap` duplication:** Extract to `src/constants.js` as a shared export. Remove duplicates from `Voting.jsx`, `Results.jsx`, and `MyVotesResults.jsx`. All three import from constants.
 
 ---
 
