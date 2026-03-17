@@ -1,57 +1,15 @@
-// components/Voting.jsx
-import React, { useState, useEffect } from 'react';
-import { CRITERIA } from '../constants';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase/firebaseConfig';
+import React, { useState, useEffect, useRef } from 'react';
+import { CRITERIA, COUNTRY_CODES } from '../constants';
 import ReactCountryFlag from 'react-country-flag';
 
-const countryCodeMap = {
-    'Iceland': 'IS',
-    'Poland': 'PL',
-    'Slovenia': 'SI',
-    'Estonia': 'EE',
-    'Ukraine': 'UA',
-    'Sweden': 'SE',
-    'Portugal': 'PT',
-    'Norway': 'NO',
-    'Belgium': 'BE',
-    'Azerbaijan': 'AZ',
-    'San Marino': 'SM',
-    'Albania': 'AL',
-    'Netherlands': 'NL',
-    'Croatia': 'HR',
-    'Cyprus': 'CY',
-    'Australia': 'AU',
-    'Montenegro': 'ME',
-    'Ireland': 'IE',
-    'Latvia': 'LV',
-    'Armenia': 'AM',
-    'Austria': 'AT',
-    'United Kingdom': 'GB',
-    'Greece': 'GR',
-    'Lithuania': 'LT',
-    'Malta': 'MT',
-    'Georgia': 'GE',
-    'France': 'FR',
-    'Denmark': 'DK',
-    'Czechia': 'CZ',
-    'Luxembourg': 'LU',
-    'Israel': 'IL',
-    'Germany': 'DE',
-    'Serbia': 'RS',
-    'Finland': 'FI',
-    'Spain': 'ES',
-    'Switzerland': 'CH',
-    'Italy': 'IT'
-};
-
-const Voting = ({ activeContest, currentContestant, updateScore, getScore, setCurrentContestant }) => {
+const Voting = ({ activeContest, updateScore, getScore, allScores, user, reactions, lastChanged }) => {
     const [tempScores, setTempScores] = useState({});
     const [confirmation, setConfirmation] = useState('');
     const [expandedContestant, setExpandedContestant] = useState(null);
     const [unsavedChanges, setUnsavedChanges] = useState({});
+    const [flashId, setFlashId] = useState(null);
+    const flashTimerRef = useRef(null);
 
-    // Initialize scores when component loads and when scores change
     useEffect(() => {
         const fetchScores = async () => {
             const allSavedScores = {};
@@ -60,19 +18,11 @@ const Voting = ({ activeContest, currentContestant, updateScore, getScore, setCu
                 let hasAnyScores = false;
                 for (const criterion of CRITERIA) {
                     const score = await getScore(contestant.id, criterion.id);
-                    if (score > 0) {
-                        savedScores[criterion.id] = score;
-                        hasAnyScores = true;
-                    }
+                    if (score > 0) { savedScores[criterion.id] = score; hasAnyScores = true; }
                 }
                 const overall = await getScore(contestant.id, 'overall');
-                if (overall > 0) {
-                    savedScores['overall'] = overall;
-                    hasAnyScores = true;
-                }
-                if (hasAnyScores) {
-                    allSavedScores[contestant.id] = savedScores;
-                }
+                if (overall > 0) { savedScores['overall'] = overall; hasAnyScores = true; }
+                if (hasAnyScores) allSavedScores[contestant.id] = savedScores;
             }
             setTempScores(allSavedScores);
             setUnsavedChanges({});
@@ -80,206 +30,248 @@ const Voting = ({ activeContest, currentContestant, updateScore, getScore, setCu
         fetchScores();
     }, [activeContest.contestants, getScore]);
 
-    const handleScore = (contestantId, criterionId, delta) => {
+    // Flash animation when other users update scores
+    useEffect(() => {
+        if (!lastChanged || !user) return;
+        const { contestantId } = lastChanged;
+        // Only flash for changes by other users
+        const scores = allScores?.[contestantId];
+        if (!scores) return;
+        const changedByOther = Object.keys(scores).some(uid => uid !== user.id);
+        if (changedByOther) {
+            setFlashId(contestantId);
+            if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+            flashTimerRef.current = setTimeout(() => setFlashId(null), 800);
+        }
+    }, [lastChanged, allScores, user]);
+
+    const handleScoreSelect = (contestantId, criterionId, value) => {
         setTempScores(prev => {
-            const currentScores = prev[contestantId] || {};
-            const currentValue = currentScores[criterionId] || 0;
-            let newValue = Math.max(1, Math.min(10, currentValue + delta));
-            
-            const newScores = {
-                ...currentScores,
-                [criterionId]: newValue
-            };
-
-            // Calculate overall score
-            let overall = 0;
-            let hasAllScores = true;
-            CRITERIA.forEach(criterion => {
-                if (newScores[criterion.id] !== undefined) {
-                    overall += newScores[criterion.id] * criterion.weight;
-                } else {
-                    hasAllScores = false;
-                }
+            const current = prev[contestantId] || {};
+            const newScores = { ...current, [criterionId]: value };
+            let overall = 0, hasAll = true;
+            CRITERIA.forEach(c => {
+                if (newScores[c.id] !== undefined) overall += newScores[c.id] * c.weight;
+                else hasAll = false;
             });
-            if (hasAllScores) {
-                newScores['overall'] = overall;
-            }
-
-            // Mark as having unsaved changes
-            setUnsavedChanges(prev => ({
-                ...prev,
-                [contestantId]: true
-            }));
-
-            return {
-                ...prev,
-                [contestantId]: newScores
-            };
+            if (hasAll) newScores['overall'] = overall;
+            setUnsavedChanges(p => ({ ...p, [contestantId]: true }));
+            return { ...prev, [contestantId]: newScores };
         });
     };
 
     const saveScores = async (contestantId) => {
         const scores = tempScores[contestantId];
         if (!scores) return false;
-
-        // Check if all criteria have scores
-        const hasAllScores = CRITERIA.every(criterion => scores[criterion.id] !== undefined);
-        if (!hasAllScores) {
-            alert('Please rate all criteria before closing');
-            return false;
-        }
-
-        // Submit all scores
-        for (const criterion of CRITERIA) {
-            await updateScore(contestantId, criterion.id, scores[criterion.id]);
-        }
+        if (!CRITERIA.every(c => scores[c.id] !== undefined)) { alert('Please rate all criteria'); return false; }
+        for (const criterion of CRITERIA) await updateScore(contestantId, criterion.id, scores[criterion.id]);
         await updateScore(contestantId, 'overall', scores['overall']);
-
-        setConfirmation(`Scores for ${activeContest.contestants.find(c => c.id === contestantId)?.name} saved successfully!`);
-        setTimeout(() => setConfirmation(''), 3000);
-
-        // Clear unsaved changes flag for this contestant
-        setUnsavedChanges(prev => {
-            const next = { ...prev };
-            delete next[contestantId];
-            return next;
-        });
-
+        const name = activeContest.contestants.find(c => c.id === contestantId)?.country || activeContest.contestants.find(c => c.id === contestantId)?.name;
+        setConfirmation(`${name} saved`);
+        setTimeout(() => setConfirmation(''), 2000);
+        setUnsavedChanges(p => { const n = { ...p }; delete n[contestantId]; return n; });
         return true;
     };
 
     const handleToggleExpand = async (contestantId) => {
         if (expandedContestant === contestantId) {
-            // If we're closing a panel and there are unsaved changes, save them
-            if (unsavedChanges[contestantId]) {
-                const success = await saveScores(contestantId);
-                if (!success) {
-                    // Don't close the panel if saving failed
-                    return;
-                }
-            }
+            if (unsavedChanges[contestantId]) { if (!(await saveScores(contestantId))) return; }
             setExpandedContestant(null);
         } else {
             setExpandedContestant(contestantId);
         }
     };
 
+    // Floating emoji reactions for a contestant
+    const getContestantReactions = (contestantId) => {
+        if (!reactions) return [];
+        return reactions.filter(r => r.contestantId === contestantId);
+    };
+
     if (!activeContest?.contestants?.length) {
-        return (
-            <div className="p-4">
-                <p>No contestants available for this contest.</p>
-            </div>
-        );
+        return <div className="p-4 text-center text-sm" style={{ color: 'var(--text3)' }}>No contestants available.</div>;
     }
 
+    const scoreColor = (val) => {
+        if (val >= 8) return 'var(--cyan)';
+        if (val >= 5) return 'var(--gold)';
+        return 'var(--text3)';
+    };
+
     return (
-        <div className="max-w-3xl mx-auto">
-            <div className="space-y-2">
+        <div className="max-w-xl mx-auto pb-4">
+            <div>
                 {activeContest.contestants
-                    .sort((a, b) => parseInt(a.id) - parseInt(b.id))
-                    .map(contestant => (
-                        <div key={contestant.id} className="bg-white rounded-lg shadow overflow-hidden">
-                            {/* Contestant Header - Always visible */}
-                            <div 
-                                className={`p-4 flex items-center justify-between cursor-pointer hover:bg-cyan-50 transition-colors ${
-                                    expandedContestant === contestant.id ? 'bg-cyan-50' : ''
-                                }`}
-                                onClick={() => handleToggleExpand(contestant.id)}
-                            >
-                                <div className="flex items-center gap-2">
-                                    {contestant.country && countryCodeMap[contestant.country] && (
-                                        <ReactCountryFlag
-                                            countryCode={countryCodeMap[contestant.country]}
-                                            svg
-                                            style={{ width: '1.5em', height: '1.5em' }}
-                                            title={contestant.country}
-                                        />
-                                    )}
-                                    <span className="font-medium text-cyan-900">{contestant.name}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    {tempScores[contestant.id]?.overall && (
-                                        <span className={`px-2 py-1 rounded text-sm font-semibold bg-cyan-50 text-cyan-700 min-w-[4rem] text-center ${unsavedChanges[contestant.id] ? 'border border-yellow-400 bg-yellow-50' : ''}`}>
-                                            {tempScores[contestant.id].overall.toFixed(2)}
-                                            {unsavedChanges[contestant.id] && '*'}
+                    .sort((a, b) => (a.order || parseInt(a.id)) - (b.order || parseInt(b.id)))
+                    .map((contestant) => {
+                        const isExpanded = expandedContestant === contestant.id;
+                        const hasScore = tempScores[contestant.id]?.overall;
+                        const isUnsaved = unsavedChanges[contestant.id];
+                        const isFlashing = flashId === contestant.id;
+                        const contestantReactions = getContestantReactions(contestant.id);
+
+                        return (
+                            <div key={contestant.id} className="relative">
+                                {/* Contestant row */}
+                                <div
+                                    className={`contestant-row ${hasScore ? 'voted' : ''} ${isFlashing ? 'flash-update' : ''}`}
+                                    onClick={() => handleToggleExpand(contestant.id)}
+                                    style={{
+                                        borderLeft: isExpanded ? '4px solid var(--pink)' : undefined,
+                                    }}
+                                >
+                                    <div className="flex items-center gap-2.5 min-w-0 py-3 pl-3 flex-1">
+                                        <span
+                                            className="font-mono text-xs w-5 text-right flex-shrink-0"
+                                            style={{ color: 'var(--text3)', fontFamily: '"JetBrains Mono", monospace' }}
+                                        >
+                                            {contestant.order || contestant.id}
                                         </span>
-                                    )}
-                                    <svg 
-                                        className={`w-5 h-5 text-cyan-600 transition-transform ${expandedContestant === contestant.id ? 'transform rotate-180' : ''}`}
-                                        fill="none" 
-                                        viewBox="0 0 24 24" 
-                                        stroke="currentColor"
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
-                            </div>                            {/* Voting Panel - Expands below the contestant */}
-                            {expandedContestant === contestant.id && (                                <div className="border-t border-cyan-100 p-4 bg-gradient-to-b from-cyan-50/50 to-white">
-                                    <div className="mb-4 bg-cyan-50 border border-cyan-200 rounded-lg p-2 flex items-center gap-2 text-cyan-700">
-                                        <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <span className="text-xs">Changes are automatically saved when you close this panel</span>
+                                        {contestant.country && COUNTRY_CODES[contestant.country] && (
+                                            <ReactCountryFlag
+                                                countryCode={COUNTRY_CODES[contestant.country]}
+                                                svg
+                                                style={{ width: '1.3em', height: '1.3em' }}
+                                                title={contestant.country}
+                                            />
+                                        )}
+                                        <div className="min-w-0">
+                                            <span
+                                                className="font-display text-sm truncate block"
+                                                style={{ fontWeight: 600, color: 'var(--text)', textTransform: 'uppercase' }}
+                                            >
+                                                {contestant.country || contestant.name}
+                                            </span>
+                                            {contestant.country && contestant.name !== contestant.country && (
+                                                <span className="text-[11px] truncate block" style={{ color: 'var(--text2)' }}>
+                                                    {contestant.name}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="space-y-6">
-                                        {CRITERIA.map(criterion => {
-                                            const score = tempScores[contestant.id]?.[criterion.id];
-                                            return (
-                                                <div key={criterion.id} className="flex flex-col gap-2">
-                                                    <div className="flex justify-between items-center">
-                                                        <label className="text-sm font-medium text-cyan-900">
-                                                            {criterion.label}
-                                                            <span className="ml-1 text-xs text-cyan-600">
-                                                                (Weight: {criterion.weight * 100}%)
-                                                            </span>
-                                                        </label>
-                                                        <div className="flex items-center gap-2 min-w-[140px] justify-end">
-                                                            <button
-                                                                onClick={() => handleScore(contestant.id, criterion.id, -1)}
-                                                                className="w-8 h-8 rounded-full bg-cyan-100 text-cyan-700 hover:bg-cyan-200 flex items-center justify-center flex-shrink-0"
-                                                                disabled={!score || score <= 1}
-                                                            >
-                                                                -
-                                                            </button>
-                                                            <div className="w-12 text-center font-bold text-lg text-cyan-700 tabular-nums">
-                                                                {score || '-'}
+                                    <div className="flex items-center gap-2 pr-3 flex-shrink-0">
+                                        {hasScore && (
+                                            <span
+                                                className="font-mono text-sm font-bold tabular-nums"
+                                                style={{
+                                                    fontFamily: '"JetBrains Mono", monospace',
+                                                    color: isUnsaved ? 'var(--gold)' : scoreColor(tempScores[contestant.id].overall),
+                                                }}
+                                            >
+                                                {tempScores[contestant.id].overall.toFixed(1)}
+                                            </span>
+                                        )}
+                                        <svg
+                                            className="w-4 h-4 transition-transform duration-200"
+                                            style={{
+                                                color: 'var(--text3)',
+                                                transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                            }}
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                {/* Floating reactions */}
+                                {contestantReactions.length > 0 && (
+                                    <div className="absolute right-12 top-2 pointer-events-none">
+                                        {contestantReactions.slice(-3).map((r, i) => (
+                                            <span key={r.id || i} className="emoji-float inline-block text-lg" style={{ animationDelay: `${i * 0.2}s` }}>
+                                                {r.emoji}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Voting panel */}
+                                {isExpanded && (
+                                    <div className="panel-expand" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+                                        <div className="p-4">
+                                            <div className="text-[10px] mb-4 flex items-center gap-1.5" style={{ color: 'var(--text3)' }}>
+                                                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                Auto-saves when you close
+                                            </div>
+
+                                            <div className="space-y-5">
+                                                {CRITERIA.map(criterion => {
+                                                    const score = tempScores[contestant.id]?.[criterion.id];
+                                                    return (
+                                                        <div key={criterion.id}>
+                                                            <div className="flex justify-between items-baseline mb-2.5">
+                                                                <span className="text-xs font-medium" style={{ color: 'var(--text2)' }}>{criterion.label}</span>
+                                                                <span className="text-[10px]" style={{ color: 'var(--text3)' }}>{(criterion.weight * 100).toFixed(0)}%</span>
                                                             </div>
-                                                            <button
-                                                                onClick={() => handleScore(contestant.id, criterion.id, 1)}
-                                                                className="w-8 h-8 rounded-full bg-cyan-100 text-cyan-700 hover:bg-cyan-200 flex items-center justify-center flex-shrink-0"
-                                                                disabled={score >= 10}
+                                                            <div className="grid grid-cols-10 gap-1">
+                                                                {[1,2,3,4,5,6,7,8,9,10].map(v => (
+                                                                    <button
+                                                                        key={v}
+                                                                        onClick={(e) => { e.stopPropagation(); handleScoreSelect(contestant.id, criterion.id, v); }}
+                                                                        className="aspect-square text-xs font-bold transition-all active:scale-90"
+                                                                        style={{
+                                                                            borderRadius: 0,
+                                                                            minHeight: 36,
+                                                                            fontFamily: '"JetBrains Mono", monospace',
+                                                                            fontWeight: 600,
+                                                                            background: score === v
+                                                                                ? 'linear-gradient(135deg, #ff2d87, #7c3aed)'
+                                                                                : 'var(--surface-hover)',
+                                                                            color: score === v ? '#fff' : 'var(--text3)',
+                                                                        }}
+                                                                    >
+                                                                        {v}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+
+                                                {tempScores[contestant.id]?.overall && (
+                                                    <div className="flex justify-center pt-1">
+                                                        <div className="text-center">
+                                                            <div
+                                                                className="text-[10px] uppercase tracking-wider mb-0.5"
+                                                                style={{ color: 'var(--text3)', letterSpacing: '2px' }}
                                                             >
-                                                                +
-                                                            </button>
+                                                                OVERALL
+                                                            </div>
+                                                            <div
+                                                                className="font-mono text-2xl font-bold tabular-nums"
+                                                                style={{
+                                                                    fontFamily: '"JetBrains Mono", monospace',
+                                                                    fontWeight: 700,
+                                                                    color: scoreColor(tempScores[contestant.id].overall),
+                                                                }}
+                                                            >
+                                                                {tempScores[contestant.id].overall.toFixed(2)}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <p className="text-xs text-cyan-600">{criterion.description}</p>
-                                                </div>
-                                            );
-                                        })}
-
-                                        {/* Overall Score Display */}
-                                        {tempScores[contestant.id]?.overall && (
-                                            <div className="mt-4 flex justify-center">
-                                                <div className={`w-full max-w-[200px] px-4 py-3 rounded-lg text-center ${unsavedChanges[contestant.id] ? 'bg-yellow-50 border border-yellow-200' : 'bg-cyan-50'}`}>
-                                                    <div className="text-sm font-medium text-cyan-700">Overall Score</div>
-                                                    <div className="text-2xl font-bold text-cyan-900 tabular-nums">
-                                                        {tempScores[contestant.id].overall.toFixed(2)}
-                                                        {unsavedChanges[contestant.id] && <span className="text-yellow-600">*</span>}
-                                                    </div>
-                                                </div>
+                                                )}
                                             </div>
-                                        )}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                                )}
+                            </div>
+                        );
+                    })}
             </div>
 
-            {/* Confirmation Message */}
             {confirmation && (
-                <div className="fixed bottom-4 right-4 bg-green-100 border border-green-200 text-green-700 px-4 py-2 rounded shadow-lg">
+                <div
+                    className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 text-sm font-medium animate-slide-up"
+                    style={{
+                        background: 'rgba(16, 185, 129, 0.15)',
+                        border: '1px solid rgba(16, 185, 129, 0.2)',
+                        color: '#10b981',
+                        borderRadius: 0,
+                        backdropFilter: 'blur(8px)',
+                    }}
+                >
                     {confirmation}
                 </div>
             )}
