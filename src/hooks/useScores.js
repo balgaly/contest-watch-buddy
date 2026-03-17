@@ -1,52 +1,83 @@
-import { useState, useEffect, useCallback } from 'react';
-import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { collection, doc, setDoc, getDocs, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
 import { CRITERIA } from '../constants';
 
 /**
- * Manages scores for a single contest.
+ * Manages scores for a single contest with real-time updates via onSnapshot.
  * allScores shape: { [contestantId]: { [userId]: scoreData } }
  */
 export const useScores = (contestId, user) => {
   const [allScores, setAllScores] = useState({});
   const [loading, setLoading] = useState(true);
+  const [lastChanged, setLastChanged] = useState(null);
+  const unsubsRef = useRef([]);
 
-  const fetchScores = useCallback(async () => {
+  // Set up real-time listeners per contestant
+  useEffect(() => {
     if (!contestId || !user) { setLoading(false); return; }
     setLoading(true);
-    try {
-      const contestantsRef = collection(db, "contests", contestId, "contestants");
-      const contestantsSnapshot = await getDocs(contestantsRef);
-      const scores = {};
 
-      await Promise.all(contestantsSnapshot.docs.map(async (cDoc) => {
-        scores[cDoc.id] = {};
-        const scoresRef = collection(db, "contests", contestId, "contestants", cDoc.id, "scores");
-        const scoresSnapshot = await getDocs(scoresRef);
-        scoresSnapshot.forEach((sDoc) => {
-          const data = sDoc.data();
-          // Calculate overall from criteria if missing (data integrity)
-          if (data.overall === undefined) {
-            let total = 0, hasAll = true;
-            CRITERIA.forEach(c => {
-              if (data[c.id] !== undefined) total += parseFloat(data[c.id]) * c.weight;
-              else hasAll = false;
+    const setup = async () => {
+      try {
+        const contestantsRef = collection(db, "contests", contestId, "contestants");
+        const contestantsSnapshot = await getDocs(contestantsRef);
+        const initialScores = {};
+
+        // Clean up any prior listeners
+        unsubsRef.current.forEach(fn => fn());
+        unsubsRef.current = [];
+
+        contestantsSnapshot.docs.forEach((cDoc) => {
+          initialScores[cDoc.id] = {};
+
+          const scoresRef = collection(db, "contests", contestId, "contestants", cDoc.id, "scores");
+          const unsub = onSnapshot(scoresRef, (snap) => {
+            const contestantScores = {};
+            snap.forEach((sDoc) => {
+              const data = sDoc.data();
+              // Calculate overall from criteria if missing
+              if (data.overall === undefined) {
+                let total = 0, hasAll = true;
+                CRITERIA.forEach(c => {
+                  if (data[c.id] !== undefined) total += parseFloat(data[c.id]) * c.weight;
+                  else hasAll = false;
+                });
+                if (hasAll) data.overall = total;
+              }
+              contestantScores[sDoc.id] = data;
             });
-            if (hasAll) data.overall = total;
-          }
-          scores[cDoc.id][sDoc.id] = data;
+
+            setAllScores(prev => {
+              const next = { ...prev, [cDoc.id]: contestantScores };
+              return next;
+            });
+
+            // Track which contestant changed for flash animation
+            setLastChanged({ contestantId: cDoc.id, timestamp: Date.now() });
+            setLoading(false);
+          });
+
+          unsubsRef.current.push(unsub);
         });
-      }));
 
-      setAllScores(scores);
-    } catch (error) {
-      console.error("Error fetching scores:", error);
-    } finally {
-      setLoading(false);
-    }
+        // If no contestants, still finish loading
+        if (contestantsSnapshot.docs.length === 0) {
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error setting up score listeners:", error);
+        setLoading(false);
+      }
+    };
+
+    setup();
+
+    return () => {
+      unsubsRef.current.forEach(fn => fn());
+      unsubsRef.current = [];
+    };
   }, [contestId, user]);
-
-  useEffect(() => { fetchScores(); }, [fetchScores]);
 
   const getScore = useCallback((contestantId, criterionId) => {
     if (!user) return 0;
@@ -57,8 +88,6 @@ export const useScores = (contestId, user) => {
     if (!user || !contestId) return;
     const key = contestantId.toString();
 
-    // Use functional updater to read accumulated state from prior calls
-    // (fixes race condition when called sequentially for multiple criteria)
     let dataToWrite;
     setAllScores(prev => {
       const current = { ...(prev[key]?.[user.id] || {}) };
@@ -118,7 +147,7 @@ export const useScores = (contestId, user) => {
   }, [user, contestId]);
 
   return {
-    allScores, loading, getScore, submitScore,
-    deleteScore, clearAllScores, refresh: fetchScores,
+    allScores, loading, lastChanged, getScore, submitScore,
+    deleteScore, clearAllScores,
   };
 };
