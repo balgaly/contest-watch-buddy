@@ -1,23 +1,17 @@
 import React from 'react';
 
-const LoadingSpinner = () => {
+const LoadingSpinner = ({ text }) => {
   return (
-    <div className="flex flex-col items-center justify-center p-4">
-      <div className="relative">
-        {/* Outer glow effect */}
-        <div className="absolute inset-0 rounded-full bg-cyan-400 opacity-20 blur-xl animate-pulse"></div>
-        {/* Spinner ring */}
-        <div className="relative w-12 h-12 rounded-full">
-          <div className="absolute w-full h-full border-4 border-cyan-200 rounded-full"></div>
-          <div className="absolute w-full h-full border-4 border-transparent border-t-cyan-500 rounded-full animate-spin"></div>
-          {/* Inner pulse */}
-          <div className="absolute inset-2 rounded-full bg-cyan-500/20 animate-ping"></div>
+    <div className="flex flex-col items-center justify-center p-6">
+      <div className="relative w-10 h-10">
+        <div className="absolute inset-0 rounded-full border-2" style={{ borderColor: 'var(--border)' }} />
+        <div className="absolute inset-0 rounded-full border-2 border-transparent animate-spin" style={{ borderTopColor: 'var(--pink)' }} />
+      </div>
+      {text !== false && (
+        <div className="mt-3 text-sm" style={{ color: 'var(--text2)' }}>
+          {text || 'Loading...'}
         </div>
-      </div>
-      {/* Loading text with fade animation */}
-      <div className="mt-4 text-cyan-600 font-medium animate-pulse">
-        Loading scores...
-      </div>
+      )}
     </div>
   );
 };
