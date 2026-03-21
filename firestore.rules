@@ -44,6 +44,11 @@ service cloud.firestore {
       }
     }
 
+    // Collection group query for scores (single listener optimization)
+    match /{path=**}/scores/{scoreUserId} {
+      allow read: if isAuthenticated();
+    }
+
     // Rooms
     match /rooms/{roomId} {
       allow read: if isAuthenticated();

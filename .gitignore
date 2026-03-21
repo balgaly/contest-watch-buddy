@@ -22,6 +22,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# screenshots
+*.png
+
 # environment variables
 .env
 .vercel

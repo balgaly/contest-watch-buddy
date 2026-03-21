@@ -1,81 +1,81 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { collection, doc, setDoc, getDocs, deleteDoc, onSnapshot } from 'firebase/firestore';
+import { collectionGroup, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
 import { CRITERIA } from '../constants';
 
 /**
- * Manages scores for a single contest with real-time updates via onSnapshot.
+ * Manages scores for a single contest with real-time updates via a single
+ * collection group query instead of per-contestant listeners.
  * allScores shape: { [contestantId]: { [userId]: scoreData } }
  */
 export const useScores = (contestId, user) => {
   const [allScores, setAllScores] = useState({});
   const [loading, setLoading] = useState(true);
   const [lastChanged, setLastChanged] = useState(null);
-  const unsubsRef = useRef([]);
+  const unsubRef = useRef(null);
 
-  // Set up real-time listeners per contestant
   useEffect(() => {
     if (!contestId || !user) { setLoading(false); return; }
     setLoading(true);
 
-    const setup = async () => {
-      try {
-        const contestantsRef = collection(db, "contests", contestId, "contestants");
-        const contestantsSnapshot = await getDocs(contestantsRef);
-        const initialScores = {};
+    // Clean up prior listener
+    if (unsubRef.current) {
+      unsubRef.current();
+      unsubRef.current = null;
+    }
 
-        // Clean up any prior listeners
-        unsubsRef.current.forEach(fn => fn());
-        unsubsRef.current = [];
+    // Single collection group query filtered by contestId
+    const scoresQuery = query(
+      collectionGroup(db, 'scores'),
+      where('contestId', '==', contestId)
+    );
 
-        contestantsSnapshot.docs.forEach((cDoc) => {
-          initialScores[cDoc.id] = {};
+    const unsub = onSnapshot(scoresQuery, (snap) => {
+      const nextScores = {};
 
-          const scoresRef = collection(db, "contests", contestId, "contestants", cDoc.id, "scores");
-          const unsub = onSnapshot(scoresRef, (snap) => {
-            const contestantScores = {};
-            snap.forEach((sDoc) => {
-              const data = sDoc.data();
-              // Calculate overall from criteria if missing
-              if (data.overall === undefined) {
-                let total = 0, hasAll = true;
-                CRITERIA.forEach(c => {
-                  if (data[c.id] !== undefined) total += parseFloat(data[c.id]) * c.weight;
-                  else hasAll = false;
-                });
-                if (hasAll) data.overall = total;
-              }
-              contestantScores[sDoc.id] = data;
-            });
+      snap.forEach((sDoc) => {
+        const data = sDoc.data();
+        // Extract contestantId from path: contests/{cid}/contestants/{contestantId}/scores/{userId}
+        const contestantId = sDoc.ref.parent.parent.id;
 
-            setAllScores(prev => {
-              const next = { ...prev, [cDoc.id]: contestantScores };
-              return next;
-            });
+        if (!nextScores[contestantId]) nextScores[contestantId] = {};
 
-            // Track which contestant changed for flash animation
-            setLastChanged({ contestantId: cDoc.id, timestamp: Date.now() });
-            setLoading(false);
+        // Calculate overall from criteria if missing
+        if (data.overall === undefined) {
+          let total = 0, hasAll = true;
+          CRITERIA.forEach(c => {
+            if (data[c.id] !== undefined) total += parseFloat(data[c.id]) * c.weight;
+            else hasAll = false;
           });
-
-          unsubsRef.current.push(unsub);
-        });
-
-        // If no contestants, still finish loading
-        if (contestantsSnapshot.docs.length === 0) {
-          setLoading(false);
+          if (hasAll) data.overall = total;
         }
-      } catch (error) {
-        console.error("Error setting up score listeners:", error);
-        setLoading(false);
-      }
-    };
 
-    setup();
+        nextScores[contestantId][sDoc.id] = data;
+      });
+
+      setAllScores(prev => {
+        // Detect which contestant changed by comparing with previous state
+        for (const cId of Object.keys(nextScores)) {
+          const prevJson = JSON.stringify(prev[cId] || {});
+          const nextJson = JSON.stringify(nextScores[cId]);
+          if (prevJson !== nextJson) {
+            setLastChanged({ contestantId: cId, timestamp: Date.now() });
+            break;
+          }
+        }
+        return nextScores;
+      });
+
+      setLoading(false);
+    });
+
+    unsubRef.current = unsub;
 
     return () => {
-      unsubsRef.current.forEach(fn => fn());
-      unsubsRef.current = [];
+      if (unsubRef.current) {
+        unsubRef.current();
+        unsubRef.current = null;
+      }
     };
   }, [contestId, user]);
 
@@ -95,6 +95,7 @@ export const useScores = (contestId, user) => {
       current.voterName = user.name;
       current.voterPhotoURL = user.photoURL || null;
       current.voterIsAdmin = user.isAdmin;
+      current.contestId = contestId;
 
       let overall = 0;
       let hasAll = true;
